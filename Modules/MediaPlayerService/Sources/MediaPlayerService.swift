@@ -8,6 +8,7 @@
 import MediaPlayer
 
 public final actor MediaPlayerService: MediaPlayerServiceable {
+    
     @MainActor
     private let musicPlayer = MPMusicPlayerApplicationController.systemMusicPlayer
     
@@ -19,6 +20,11 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
                 continuation.resume()
             }
         }
+    }
+    
+    public func fetchAlbumDisplayItems() async -> [AlbumDisplayItem] {
+        let albums = MPMediaQuery.albums().collections ?? []
+        return albums.map { AlbumDisplayItem(from: $0) }
     }
     
     public func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem] {
@@ -39,9 +45,13 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         return query.items ?? []
     }
     
-    public func replaceQueue(with mediaItems: [MPMediaItem]) async {
-        let queue = MPMediaItemCollection(items: mediaItems)
+    public func replaceQueue(items: [MPMediaItem]) async {
+        let queue = MPMediaItemCollection(items: items)
         await musicPlayer.setQueue(with: queue)
+    }
+    
+    public func replaceQueue(collection: MPMediaItemCollection) async {
+        await musicPlayer.setQueue(with: collection)
     }
     
     public func playbackState() async -> MPMusicPlaybackState {
@@ -63,12 +73,5 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     public func restart() async {
         await musicPlayer.skipToBeginning()
         await musicPlayer.stop()
-    }
-}
-
-extension MPMediaItem {
-    /// 고유한 값이 없어 조합보다는 새로 생성해서 처리
-    public var uuid: String {
-        return UUID().uuidString
     }
 }

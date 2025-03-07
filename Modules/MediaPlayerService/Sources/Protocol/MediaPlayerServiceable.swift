@@ -9,8 +9,10 @@ import MediaPlayer
 
 public protocol MediaPlayerServiceable {
     func requestAuthorization() async
+    func fetchAlbumDisplayItems() async -> [AlbumDisplayItem]
     func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem]
-    func replaceQueue(with mediaItems: [MPMediaItem]) async
+    func replaceQueue(items: [MPMediaItem]) async
+    func replaceQueue(collection: MPMediaItemCollection) async
     func playbackState() async -> MPMusicPlaybackState
     func play() async
     /// paused 상태를 가짐

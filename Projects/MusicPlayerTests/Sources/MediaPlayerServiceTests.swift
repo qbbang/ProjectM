@@ -34,8 +34,8 @@ struct MediaPlayerServiceTests {
         let ablums = await mediaPlayerService.fetchMediaQuery(for: .albums())
         let songs = await mediaPlayerService.fetchMediaQuery(for: .songs())
         
-        #expect(ablums.items?.isEmpty == false, "앨범이 없습니다.")
-        #expect(songs.items?.isEmpty == false, "노래가 없습니다.")
+        #expect(ablums.isEmpty == false, "앨범이 없습니다.")
+        #expect(songs.isEmpty == false, "노래가 없습니다.")
     }
     
     @Test
@@ -95,7 +95,7 @@ struct MediaPlayerServiceTests {
     }
     
     private func setPlayList() async {
-        let items = await mediaPlayerService.fetchMediaQuery(for: .songs()).items ?? []
+        let items = await mediaPlayerService.fetchMediaQuery(for: .songs())
         await mediaPlayerService.replaceQueue(with: items)
     }
 }
