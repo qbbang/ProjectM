@@ -6,10 +6,10 @@
 //
 
 import SwiftUI
-import MediaPlayer
+import MediaPlayerService
 
 struct AlbumView: View {
-    let album: MPMediaItem
+    let album: AlbumDisplayItem
     let geometry: GeometryProxy
     
     var body: some View {
@@ -27,27 +27,26 @@ struct AlbumView: View {
     @ViewBuilder
     private var artworkImageView: some View {
         let width = (geometry.size.width / 2) - 16
-        
-        AsyncImage(url: nil) { image in
-            if let artworkImage = album.artwork?.image(at: CGSize(width: width, height: width)) {
-                Image(uiImage: artworkImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: width, height: width)
-            } else {
-                Color.gray
-                    .frame(width: width, height: width)
-            }
+        if let artworkImage = album.artwork {
+            artworkImage
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width, height: width)
+                .clipped()
+        } else {
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: width, height: width)
         }
     }
     
     @ViewBuilder
     private var infoView: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(album.title ?? "Unknown")
+            Text(album.title)
                 .font(.system(size: 14, weight: .bold))
                 .lineLimit(1)
-            Text(album.artist ?? "Noname")
+            Text(album.artist)
                 .font(.system(size: 12))
                 .lineLimit(1)
         }

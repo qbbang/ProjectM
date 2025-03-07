@@ -6,13 +6,13 @@
 //
 
 import Foundation
-@preconcurrency import MediaPlayer
 import MediaPlayerService
+import MediaPlayer
 
 final class AlbumListData: ObservableObject {
     let mediaPlayerService: MediaPlayerServiceable
     
-    @Published var albums: [MPMediaItem] = []
+    @Published var albums: [AlbumDisplayItem] = []
     
     init(mediaPlayerService: MediaPlayerServiceable) {
         self.mediaPlayerService = mediaPlayerService
@@ -21,9 +21,25 @@ final class AlbumListData: ObservableObject {
     @MainActor
     func fetchMediaItems() async {
         let items = await Task {
-            await mediaPlayerService.fetchMediaQuery(for: .albums())
+            await mediaPlayerService.fetchAlbumDisplayItems()
         }.value
         
         self.albums = items
+    }
+   
+    @MainActor
+    func testPlay(album: MPMediaItemCollection) async {
+        Task {
+            await mediaPlayerService.replaceQueue(collection: album)
+            await mediaPlayerService.play()
+        }
+    }
+}
+
+extension AlbumListData {
+    static func placeHolder() -> AlbumListData {
+        let mediaPlayerService = MediaPlayerService()
+        let data = AlbumListData(mediaPlayerService: mediaPlayerService)
+        return data
     }
 }

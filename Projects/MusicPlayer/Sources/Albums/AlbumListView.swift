@@ -36,12 +36,16 @@ struct AlbumListView: View {
     @ViewBuilder
     private var gridView: some View {
         GeometryReader { geometry in
-            // FIXME: NSBundle file:///System/Library/PrivateFrameworks/MetalTools.framework/ principal class is nil because all fallbacks have failed
-            // <0x101d6df40> Gesture: System gesture gate timed out.
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(data.albums, id: \.uuid) { album in
+                    ForEach(data.albums, id: \.id) { album in
                         AlbumView(album: album, geometry: geometry)
+                            .onTapGesture {
+                                Task {
+                                    await data.testPlay(album: album.mediaItem)
+                                }
+                                print("✅ 앨범 클릭: \(album.title)")
+                            }
                     }
                 }
                 .padding()
