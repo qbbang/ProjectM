@@ -12,6 +12,16 @@ let project = Project(
             sources: ["Sources/**"],
             resources: ["Resources/**"],
             dependencies: []
+        ),
+        Target.target(
+            name: "AudioServiceTests",
+            destinations: [.iPhone],
+            product: .unitTests,
+            bundleId: "com.jokerLee.AudioServiceTests",
+            deploymentTargets: .iOS("15.0"),
+            infoPlist: .default,
+            sources: ["Tests/**"],
+            dependencies: [.target(name: "AudioService")]
         )
     ],
     additionalFiles: [
