@@ -9,7 +9,7 @@ import MediaPlayer
 
 public protocol MediaPlayerServiceable {
     func requestAuthorization() async
-    func fetchMediaQuery(for type: MPMediaQuery) async -> MPMediaQuery
+    func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem]
     func replaceQueue(with mediaItems: [MPMediaItem]) async
     func playbackState() async -> MPMusicPlaybackState
     func play() async

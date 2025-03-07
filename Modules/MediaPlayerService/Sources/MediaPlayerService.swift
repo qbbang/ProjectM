@@ -7,11 +7,13 @@
 
 import MediaPlayer
 
-final actor MediaPlayerService: MediaPlayerServiceable {
+public final actor MediaPlayerService: MediaPlayerServiceable {
     @MainActor
     private let musicPlayer = MPMusicPlayerApplicationController.systemMusicPlayer
     
-    func requestAuthorization() async {
+    public init() { }
+    
+    public func requestAuthorization() async {
         await withCheckedContinuation { continuation in
             MPMediaLibrary.requestAuthorization { _ in
                 continuation.resume()
@@ -19,7 +21,7 @@ final actor MediaPlayerService: MediaPlayerServiceable {
         }
     }
     
-    func fetchMediaQuery(for type: MPMediaQuery) async -> MPMediaQuery {
+    public func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem] {
         let query: MPMediaQuery
         
         switch type {
@@ -34,32 +36,39 @@ final actor MediaPlayerService: MediaPlayerServiceable {
             query = .init()
         }
         
-        return query
+        return query.items ?? []
     }
     
-    func replaceQueue(with mediaItems: [MPMediaItem]) async {
+    public func replaceQueue(with mediaItems: [MPMediaItem]) async {
         let queue = MPMediaItemCollection(items: mediaItems)
         await musicPlayer.setQueue(with: queue)
     }
     
-    func playbackState() async -> MPMusicPlaybackState {
+    public func playbackState() async -> MPMusicPlaybackState {
         await musicPlayer.playbackState
     }
     
-    func play() async {
+    public func play() async {
         await musicPlayer.play()
     }
     
-    func pause() async {
+    public func pause() async {
         await musicPlayer.pause()
     }
     
-    func stop() async {
+    public func stop() async {
         await musicPlayer.stop()
     }
     
-    func restart() async {
+    public func restart() async {
         await musicPlayer.skipToBeginning()
         await musicPlayer.stop()
+    }
+}
+
+extension MPMediaItem {
+    /// 고유한 값이 없어 조합보다는 새로 생성해서 처리
+    public var uuid: String {
+        return UUID().uuidString
     }
 }
