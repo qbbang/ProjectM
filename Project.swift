@@ -6,6 +6,14 @@ extension SettingValue {
     static let projectVersion: SettingValue = "0"
 }
 
+let plist: [String : Plist.Value] = [
+    "UILaunchStoryboardName": "LaunchScreen",
+    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
+    "UIUserInterfaceStyle": "Light",
+    "UIBackgroundModes": ["audio"],
+    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
+]
+
 let project = Project(
     name: "MusicPlayer",
     targets: [
@@ -15,13 +23,7 @@ let project = Project(
             product: .app,
             bundleId: "com.jokerLee.MusicPlayer",
             deploymentTargets: .iOS("15.0"),
-            infoPlist: .extendingDefault(
-                with: [
-                    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
-                    "UIBackgroundModes": ["audio"],
-                    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
-                ]
-            ),
+            infoPlist: .extendingDefault(with: plist),
             sources: ["Projects/MusicPlayer/Sources/**"],
             dependencies: [
                 .project(target: "MediaPlayerService", path: .relativeToRoot("Modules/MediaPlayerService")),
@@ -48,13 +50,7 @@ let project = Project(
             product: .unitTests,
             bundleId: "com.jokerLee.MusicPlayerTests",
             deploymentTargets: .iOS("15.0"),
-            infoPlist: .extendingDefault(
-                with: [
-                    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
-                    "UIBackgroundModes": ["audio"],
-                    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
-                ]
-            ),
+            infoPlist: .extendingDefault(with: plist),
             sources: ["Projects/MusicPlayerTests/Sources/**"],
             dependencies: [
                 .target(name: "MusicPlayer"),
@@ -75,10 +71,7 @@ let project = Project(
                     .release(name: .release)
                 ],
                 defaultSettings: .recommended
-            ),
-            additionalFiles: [
-                "Sources/Empty.swift"
-            ]
+            )
         )
     ]
 )
