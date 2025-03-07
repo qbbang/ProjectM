@@ -14,7 +14,7 @@ import Testing
 struct MediaPlayerServiceTests {
     private let mediaPlayerService: MediaPlayerServiceable
     
-    init() {
+    private init() {
         mediaPlayerService = MediaPlayerService()
     }
     
@@ -33,7 +33,6 @@ struct MediaPlayerServiceTests {
     func testFetchMediaQuery() async throws {
         let ablums = await mediaPlayerService.fetchMediaQuery(for: .albums())
         let songs = await mediaPlayerService.fetchMediaQuery(for: .songs())
-        
         
         #expect(ablums.items?.isEmpty == false, "앨범이 없습니다.")
         #expect(songs.items?.isEmpty == false, "노래가 없습니다.")
@@ -58,7 +57,6 @@ struct MediaPlayerServiceTests {
             try await Task.sleep(nanoseconds: 300_000_000)
         }
         
-        
         await mediaPlayerService.stop()
         let currentState = await mediaPlayerService.playbackState()
         
@@ -73,7 +71,6 @@ struct MediaPlayerServiceTests {
             await mediaPlayerService.play()
             try await Task.sleep(nanoseconds: 300_000_000)
         }
-        
         
         await mediaPlayerService.pause()
         let currentState = await mediaPlayerService.playbackState()
@@ -90,11 +87,10 @@ struct MediaPlayerServiceTests {
             try await Task.sleep(nanoseconds: 300_000_000)
         }
         
-        
         await mediaPlayerService.restart()
         try await Task.sleep(nanoseconds: 300_000_000)
         let currentState = await mediaPlayerService.playbackState()
-        print("✅ currentState: ", currentState)
+        
         #expect(currentState == .paused, "음악이 처음으로 돌아가지 않았습니다.")
     }
     
