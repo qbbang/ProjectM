@@ -27,7 +27,6 @@ let project = Project(
             sources: ["Projects/MusicPlayer/Sources/**"],
             dependencies: [
                 .project(target: "MediaPlayerService", path: .relativeToRoot("Modules/MediaPlayerService")),
-                .project(target: "Component",    path: .relativeToRoot("Modules/Component")),
                 .project(target: "MiniPlayer",   path: .relativeToRoot("Modules/MiniPlayer"))
             ],
             settings: .settings(
@@ -36,6 +35,7 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": .projectVersion,
                     "MARKETING_VERSION": .marketingVersion,
                     "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "9DL55EF8D3"
                 ],
                 configurations: [
                     .debug(name: .debug),
@@ -55,7 +55,6 @@ let project = Project(
             dependencies: [
                 .target(name: "MusicPlayer"),
                 .project(target: "MediaPlayerService", path: .relativeToRoot("Modules/MediaPlayerService")),
-                .project(target: "Component",    path: .relativeToRoot("Modules/Component")),
                 .project(target: "MiniPlayer",   path: .relativeToRoot("Modules/MiniPlayer"))
             ],
             settings: .settings(
@@ -64,6 +63,7 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": .projectVersion,
                     "MARKETING_VERSION": .marketingVersion,
                     "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "9DL55EF8D3",
                     "ENABLE_TESTABILITY": "YES"
                 ],
                 configurations: [
@@ -71,6 +71,20 @@ let project = Project(
                     .release(name: .release)
                 ],
                 defaultSettings: .recommended
+            )
+        )
+    ],
+    schemes: [
+        Scheme.scheme(
+            name: "MusicPlayer-Debug",
+            buildAction: .buildAction(targets: ["MusicPlayer"]),
+            runAction: .runAction(
+                arguments: .arguments(
+                    environmentVariables: [
+                        // https://developer.apple.com/documentation/xcode/validating-your-apps-metal-api-usage
+                        "MTL_DEBUG_LAYER": "0"
+                    ]
+                )
             )
         )
     ]
