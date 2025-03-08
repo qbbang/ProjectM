@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import MediaPlayer
 
 struct AlbumListView: View {
     @StateObject var data: AlbumListData
@@ -15,7 +14,7 @@ struct AlbumListView: View {
     var body: some View {
         NavigationView {
             contentsView
-                .navigationTitle("SwiftUI")
+                .navigationTitle("라이브러리")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar { microphoneBarItem }
         }
@@ -24,7 +23,6 @@ struct AlbumListView: View {
     // MARK: Private
     @ViewBuilder
     private var contentsView: some View {
-        
         if data.albums.isEmpty {
             ProgressView("Loading...")
                 .frame(width: 150, height: 150)
@@ -33,19 +31,16 @@ struct AlbumListView: View {
         }
     }
     
-    @ViewBuilder
     private var gridView: some View {
         GeometryReader { geometry in
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(data.albums, id: \.id) { album in
-                        AlbumView(album: album, geometry: geometry)
-                            .onTapGesture {
-                                Task {
-                                    await data.testPlay(album: album.mediaItem)
-                                }
-                                print("✅ 앨범 클릭: \(album.title)")
-                            }
+                    ForEach(data.albums) { album in
+                        let data = AlbumDetailData(mediaPlayerService: data.mediaPlayerService, album: album)
+                        NavigationLink(destination: AlbumDetailView(data: data)) {
+                            AlbumView(album: album, geometry: geometry)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding()

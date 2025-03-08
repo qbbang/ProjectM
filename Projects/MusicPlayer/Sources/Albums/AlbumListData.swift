@@ -35,11 +35,3 @@ final class AlbumListData: ObservableObject {
         }
     }
 }
-
-extension AlbumListData {
-    static func placeHolder() -> AlbumListData {
-        let mediaPlayerService = MediaPlayerService()
-        let data = AlbumListData(mediaPlayerService: mediaPlayerService)
-        return data
-    }
-}
