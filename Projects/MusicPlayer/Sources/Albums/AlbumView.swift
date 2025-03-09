@@ -9,7 +9,7 @@ import SwiftUI
 import MediaPlayerService
 
 struct AlbumView: View {
-    let album: AlbumDisplayItem
+    let album: MediaItemCollection
     let geometry: GeometryProxy
     
     var body: some View {
@@ -57,11 +57,11 @@ struct AlbumView: View {
 #Preview {
     GeometryReader { geometry in
         AlbumView(
-            album: AlbumDisplayItem(
+            album: MediaItemCollection(
                 title: "title",
                 artist: "artist",
                 artwork: Image("dpad.left.filled"),
-                mediaItemCollection: .init(items: [])
+                items: .init()
             ),
             geometry: geometry
         )

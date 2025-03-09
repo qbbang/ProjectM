@@ -122,7 +122,7 @@ struct AlbumDetailView: View {
             Spacer(minLength: 8)
             
             ForEach(data.soungs, id: \.id) { soung in
-                Label(soung.title ?? "ss", systemImage: "music.note")
+                Label(soung.title, systemImage: "music.note")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
             }

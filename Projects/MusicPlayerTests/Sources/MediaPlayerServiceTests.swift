@@ -96,6 +96,7 @@ struct MediaPlayerServiceTests {
     
     private func setPlayList() async {
         let items = await mediaPlayerService.fetchMediaQuery(for: .songs())
-        await mediaPlayerService.replaceQueue(with: items)
+        let modifierItems = items.map { MediaItem(from: $0)}
+        await mediaPlayerService.replaceQueue(items: modifierItems)
     }
 }

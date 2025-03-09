@@ -21,9 +21,9 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         }
     }
     
-    public func fetchAlbumDisplayItems() async -> [AlbumDisplayItem] {
+    public func fetchAlbumDisplayItems() async -> [MediaItemCollection] {
         let albums = MPMediaQuery.albums().collections ?? []
-        return albums.map { AlbumDisplayItem(from: $0) }
+        return albums.map { MediaItemCollection(from: $0) }
     }
     
     public func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem] {
@@ -44,8 +44,9 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         return query.items ?? []
     }
     
-    public func replaceQueue(items: [MPMediaItem]) async {
-        let queue = MPMediaItemCollection(items: items)
+    public func replaceQueue(items: [MediaItem]) async {
+        let originalItems = items.map { $0.originalObject }
+        let queue = MPMediaItemCollection(items: originalItems)
         await musicPlayer.setQueue(with: queue)
     }
     
@@ -74,12 +75,13 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         await musicPlayer.stop()
     }
     
-    public func shuffle(items: [MPMediaItem]) async {
+    public func shuffle(items: [MediaItem]) async {
         await musicPlayer.stop()
         /// 프레임워크에서 제공하는 임의 재생 기능
         // await musicPlayer.shuffleMode = .songs
         
-        let shuffleQueue = MPMediaItemCollection(items: items)
+        let originalItems = items.map { $0.originalObject }
+        let shuffleQueue = MPMediaItemCollection(items: originalItems)
         await musicPlayer.setQueue(with: shuffleQueue)
         await musicPlayer.play()
     }

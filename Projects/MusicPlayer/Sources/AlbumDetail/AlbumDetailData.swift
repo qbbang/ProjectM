@@ -8,13 +8,12 @@
 import SwiftUI
 
 import MediaPlayerService
-import MediaPlayer
 
 final class AlbumDetailData: ObservableObject {
-    let mediaPlayerService: MediaPlayerServiceable
-    private let album: AlbumDisplayItem
+    private let mediaPlayerService: MediaPlayerServiceable
+    private let album: MediaItemCollection
     
-    @Published var soungs: [MPMediaItem] = []
+    @Published var soungs: [MediaItem] = []
     
     var title: String {
         album.title
@@ -28,11 +27,11 @@ final class AlbumDetailData: ObservableObject {
         album.artist
     }
     
-    init(mediaPlayerService: MediaPlayerServiceable, album: AlbumDisplayItem) {
+    init(mediaPlayerService: MediaPlayerServiceable, album: MediaItemCollection) {
         self.mediaPlayerService = mediaPlayerService
         self.album = album
         
-        soungs = album.mediaItemCollection.items
+        soungs = album.items
     }
     
     @MainActor
@@ -67,11 +66,11 @@ extension AlbumDetailData {
     static func mock() -> AlbumDetailData {
         let data = AlbumDetailData(
             mediaPlayerService: MediaPlayerService(),
-            album: AlbumDisplayItem(
+            album: MediaItemCollection(
                 title: "Album",
                 artist: "Artist",
                 artwork: nil,
-                mediaItemCollection: .init(items: [])
+                items: []
             )
         )
         return data
