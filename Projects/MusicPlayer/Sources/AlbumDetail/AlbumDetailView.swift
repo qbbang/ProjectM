@@ -1,0 +1,140 @@
+//
+//  AlbumDetailView.swift
+//  MusicPlayer
+//
+//  Created by MK-AM16-009 on 3/8/25.
+//
+
+import SwiftUI
+import MediaPlayerService
+
+struct AlbumDetailView: View {
+    // TODO: matchedGeometryEffect 활용한 셔플 애니메이션 다시 할 것
+    // @Namespace private var animation
+    @Environment(\.scenePhase) var scenePhase
+    @ObservedObject var data: AlbumDetailData
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            contentView
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .task {
+            await data.updatePlaybackState()
+        }
+    }
+    
+    // MARK: Private
+    @ViewBuilder
+    private var contentView: some View {
+        VStack {
+            albumInfoView
+        }
+        Spacer(minLength: 16)
+        mediaItemListView
+    }
+    
+    @ViewBuilder
+    private var albumInfoView: some View {
+        HStack {
+            artworkImageView
+            infoView
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        
+        actionButtons
+            .onChange(of: scenePhase) { scenePhase in
+                if scenePhase == .active {
+                    Task { await data.updatePlaybackState() }
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private var artworkImageView: some View {
+        if let artworkImage = data.artwork {
+            artworkImage
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 80, height: 80)
+                .clipped()
+                .cornerRadius(8)
+        } else {
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 80, height: 80)
+                .cornerRadius(8)
+        }
+    }
+    
+    private var infoView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(data.title)
+                .font(.title2.bold())
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Text(data.artistName)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxHeight: 80, alignment: .top)
+    }
+    
+    private var actionButtons: some View {
+        GeometryReader { geometry in
+            ActionButtonView(
+                width: (geometry.size.width / 2) - 4,
+                buttonImage: data.playbackState.buttonImage,
+                onPlayPauseToggle: {
+                    if data.playbackState.isPlaying {
+                        Task { await data.pause() }
+                    } else {
+                        Task { await data.play() }
+                    }
+                },
+                onShuffle: {
+                    Task { await data.shuffle() }
+                }
+            )
+        }
+        .frame(height: 60)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+    
+    private var mediaItemListView: some View {
+        ScrollView {
+            mediaItemView
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.orange)
+                .shadow(radius: 5)
+                .padding(.horizontal, 16)
+        )
+    }
+    
+    private var mediaItemView: some View {
+        VStack(spacing: 16) {
+            Spacer(minLength: 8)
+            
+            ForEach(data.mediaItems, id: \.id) { mediaItem in
+                MediaItemTitleView(mediaItem: mediaItem)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 8)
+                    .onTapGesture {
+                        Task { await data.play(mediaItem: mediaItem) }
+                    }
+            }
+        }
+        .padding()
+    }
+}
+
+#Preview {
+    AlbumDetailView(data: .mock())
+}

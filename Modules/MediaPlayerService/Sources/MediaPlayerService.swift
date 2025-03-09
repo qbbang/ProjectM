@@ -7,11 +7,13 @@
 
 import MediaPlayer
 
-final actor MediaPlayerService: MediaPlayerServiceable {
+public final actor MediaPlayerService: MediaPlayerServiceable {
     @MainActor
     private let musicPlayer = MPMusicPlayerApplicationController.systemMusicPlayer
     
-    func requestAuthorization() async {
+    public init() { }
+    
+    public func requestAuthorization() async {
         await withCheckedContinuation { continuation in
             MPMediaLibrary.requestAuthorization { _ in
                 continuation.resume()
@@ -19,7 +21,12 @@ final actor MediaPlayerService: MediaPlayerServiceable {
         }
     }
     
-    func fetchMediaQuery(for type: MPMediaQuery) async -> MPMediaQuery {
+    public func fetchAlbumDisplayItems() async -> [MediaItemCollection] {
+        let albums = MPMediaQuery.albums().collections ?? []
+        return albums.map { MediaItemCollection(from: $0) }
+    }
+    
+    public func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem] {
         let query: MPMediaQuery
         
         switch type {
@@ -29,37 +36,68 @@ final actor MediaPlayerService: MediaPlayerServiceable {
             query = MPMediaQuery.albums()
         case .artists():
             query = MPMediaQuery.artists()
-        
+            
         default:
             query = .init()
         }
         
-        return query
+        return query.items ?? []
     }
     
-    func replaceQueue(with mediaItems: [MPMediaItem]) async {
-        let queue = MPMediaItemCollection(items: mediaItems)
+    public func replaceQueue(items: [MediaItem]) async {
+        let originalItems = items.map { $0.originalObject }
+        let queue = MPMediaItemCollection(items: originalItems)
         await musicPlayer.setQueue(with: queue)
     }
     
-    func playbackState() async -> MPMusicPlaybackState {
+    public func replaceQueue(collection: MPMediaItemCollection) async {
+        await musicPlayer.setQueue(with: collection)
+    }
+    
+    public func playbackState() async -> MPMusicPlaybackState {
         await musicPlayer.playbackState
     }
     
-    func play() async {
+    public func play() async {
         await musicPlayer.play()
     }
     
-    func pause() async {
+    public func pause() async {
         await musicPlayer.pause()
     }
     
-    func stop() async {
+    public func stop() async {
         await musicPlayer.stop()
     }
     
-    func restart() async {
+    public func restart() async {
         await musicPlayer.skipToBeginning()
         await musicPlayer.stop()
+    }
+    
+    public func shuffle(items: [MediaItem]) async {
+        await musicPlayer.stop()
+        let originalItems = items.map { $0.originalObject }
+        let shuffleQueue = MPMediaItemCollection(items: originalItems)
+        await musicPlayer.setQueue(with: shuffleQueue)
+        await musicPlayer.play()
+    }
+    
+    public func play(_ selectedItem: MediaItem, in items: [MediaItem]) async {
+        await musicPlayer.stop()
+        let originalItems = items.map { $0.originalObject }
+        let itemCollection = MPMediaItemCollection(items: originalItems)
+        let queueDescriptor = MPMusicPlayerMediaItemQueueDescriptor(itemCollection: itemCollection)
+        queueDescriptor.startItem = selectedItem.originalObject
+        await musicPlayer.setQueue(with: queueDescriptor)
+        await musicPlayer.play()
+    }
+    
+    public func nowPlayingItem() async -> MediaItem? {
+        guard let nowPlayingItem = await musicPlayer.nowPlayingItem else {
+            return nil
+        }
+        
+        return MediaItem(from: nowPlayingItem)
     }
 }

@@ -6,6 +6,14 @@ extension SettingValue {
     static let projectVersion: SettingValue = "0"
 }
 
+let plist: [String : Plist.Value] = [
+    "UILaunchStoryboardName": "LaunchScreen",
+    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
+    "UIUserInterfaceStyle": "Light",
+    "UIBackgroundModes": ["audio"],
+    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
+]
+
 let project = Project(
     name: "MusicPlayer",
     targets: [
@@ -15,17 +23,10 @@ let project = Project(
             product: .app,
             bundleId: "com.jokerLee.MusicPlayer",
             deploymentTargets: .iOS("15.0"),
-            infoPlist: .extendingDefault(
-                with: [
-                    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
-                    "UIBackgroundModes": ["audio"],
-                    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
-                ]
-            ),
+            infoPlist: .extendingDefault(with: plist),
             sources: ["Projects/MusicPlayer/Sources/**"],
             dependencies: [
                 .project(target: "MediaPlayerService", path: .relativeToRoot("Modules/MediaPlayerService")),
-                .project(target: "Component",    path: .relativeToRoot("Modules/Component")),
                 .project(target: "MiniPlayer",   path: .relativeToRoot("Modules/MiniPlayer"))
             ],
             settings: .settings(
@@ -34,6 +35,7 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": .projectVersion,
                     "MARKETING_VERSION": .marketingVersion,
                     "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "9DL55EF8D3"
                 ],
                 configurations: [
                     .debug(name: .debug),
@@ -48,18 +50,11 @@ let project = Project(
             product: .unitTests,
             bundleId: "com.jokerLee.MusicPlayerTests",
             deploymentTargets: .iOS("15.0"),
-            infoPlist: .extendingDefault(
-                with: [
-                    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
-                    "UIBackgroundModes": ["audio"],
-                    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
-                ]
-            ),
+            infoPlist: .extendingDefault(with: plist),
             sources: ["Projects/MusicPlayerTests/Sources/**"],
             dependencies: [
                 .target(name: "MusicPlayer"),
                 .project(target: "MediaPlayerService", path: .relativeToRoot("Modules/MediaPlayerService")),
-                .project(target: "Component",    path: .relativeToRoot("Modules/Component")),
                 .project(target: "MiniPlayer",   path: .relativeToRoot("Modules/MiniPlayer"))
             ],
             settings: .settings(
@@ -68,6 +63,7 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": .projectVersion,
                     "MARKETING_VERSION": .marketingVersion,
                     "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "9DL55EF8D3",
                     "ENABLE_TESTABILITY": "YES"
                 ],
                 configurations: [
@@ -75,10 +71,21 @@ let project = Project(
                     .release(name: .release)
                 ],
                 defaultSettings: .recommended
-            ),
-            additionalFiles: [
-                "Sources/Empty.swift"
-            ]
+            )
+        )
+    ],
+    schemes: [
+        Scheme.scheme(
+            name: "MusicPlayer-Debug",
+            buildAction: .buildAction(targets: ["MusicPlayer"]),
+            runAction: .runAction(
+                arguments: .arguments(
+                    environmentVariables: [
+                        // https://developer.apple.com/documentation/xcode/validating-your-apps-metal-api-usage
+                        "MTL_DEBUG_LAYER": "0"
+                    ]
+                )
+            )
         )
     ]
 )
