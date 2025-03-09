@@ -86,4 +86,23 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         await musicPlayer.play()
     }
     
+    public func play(_ selectedItem: MediaItem, in items: [MediaItem]) async {
+        await musicPlayer.stop()
+        let originalItems = items.map { $0.originalObject }
+        let itemCollection = MPMediaItemCollection(items: originalItems)
+        let queueDescriptor = MPMusicPlayerMediaItemQueueDescriptor(itemCollection: itemCollection)
+        queueDescriptor.startItem = selectedItem.originalObject
+        
+        await musicPlayer.setQueue(with: queueDescriptor)
+        await musicPlayer.play()
+    }
+    
+    public func nowPlayingItem() async -> MediaItem? {
+        guard let nowPlayingItem = await musicPlayer.nowPlayingItem else {
+            
+            return nil
+        }
+        
+        return MediaItem(from: nowPlayingItem)
+    }
 }

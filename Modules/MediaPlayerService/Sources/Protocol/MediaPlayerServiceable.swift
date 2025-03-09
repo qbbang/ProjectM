@@ -19,4 +19,6 @@ public protocol MediaPlayerServiceable {
     func stop() async       /// paused 상태를 가짐
     func restart() async    /// paused 상태를 가짐
     func shuffle(items: [MediaItem]) async
+    func play(_ selectedItem: MediaItem, in items: [MediaItem]) async
+    func nowPlayingItem() async -> MediaItem?
 }

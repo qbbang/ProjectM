@@ -30,7 +30,7 @@ struct MediaPlayerServiceTests {
     }
     
     @Test
-    func testFetchMediaQuery() async throws {
+    func fetchMediaQuery() async throws {
         let ablums = await mediaPlayerService.fetchMediaQuery(for: .albums())
         let songs = await mediaPlayerService.fetchMediaQuery(for: .songs())
         
@@ -39,7 +39,7 @@ struct MediaPlayerServiceTests {
     }
     
     @Test
-    func testMediaPlay() async throws {
+    func mediaPlay() async throws {
         await setPlayList()
         await mediaPlayerService.play()
         try await Task.sleep(nanoseconds: 300_000_000)
@@ -49,7 +49,7 @@ struct MediaPlayerServiceTests {
     }
     
     @Test
-    func testMediaStop() async throws {
+    func mediaStop() async throws {
         let beforeState = await mediaPlayerService.playbackState()
         if beforeState != .playing {
             await setPlayList()
@@ -64,7 +64,7 @@ struct MediaPlayerServiceTests {
     }
     
     @Test
-    func testMediaPause() async throws {
+    func mediaPause() async throws {
         let beforeState = await mediaPlayerService.playbackState()
         if beforeState != .playing {
             await setPlayList()
@@ -79,7 +79,7 @@ struct MediaPlayerServiceTests {
     }
     
     @Test
-    func testMediaReset() async throws {
+    func mediaReset() async throws {
         let beforeState = await mediaPlayerService.playbackState()
         if beforeState != .playing {
             await setPlayList()
@@ -92,6 +92,23 @@ struct MediaPlayerServiceTests {
         let currentState = await mediaPlayerService.playbackState()
         
         #expect(currentState == .paused, "음악이 처음으로 돌아가지 않았습니다.")
+    }
+    
+    @Test
+    func playSelectedItem() async throws {
+        let items = await mediaPlayerService.fetchMediaQuery(for: .songs()).map { MediaItem(from: $0) }
+        guard let selectedItem = items.randomElement() else { return }
+        
+        await mediaPlayerService.play(selected: selectedItem, in: items)
+        
+        guard let item = await mediaPlayerService.nowPlayingItem() else {
+            return
+        }
+        
+        print(items.map { $0.title })
+        print(selectedItem.title)
+        print(item.title)
+        #expect(selectedItem.title == item.title, "선택된 음악이 다릅니다")
     }
     
     private func setPlayList() async {
