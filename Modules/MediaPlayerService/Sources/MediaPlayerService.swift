@@ -77,9 +77,6 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     
     public func shuffle(items: [MediaItem]) async {
         await musicPlayer.stop()
-        /// 프레임워크에서 제공하는 임의 재생 기능
-        // await musicPlayer.shuffleMode = .songs
-        
         let originalItems = items.map { $0.originalObject }
         let shuffleQueue = MPMediaItemCollection(items: originalItems)
         await musicPlayer.setQueue(with: shuffleQueue)
@@ -92,14 +89,12 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         let itemCollection = MPMediaItemCollection(items: originalItems)
         let queueDescriptor = MPMusicPlayerMediaItemQueueDescriptor(itemCollection: itemCollection)
         queueDescriptor.startItem = selectedItem.originalObject
-        
         await musicPlayer.setQueue(with: queueDescriptor)
         await musicPlayer.play()
     }
     
     public func nowPlayingItem() async -> MediaItem? {
         guard let nowPlayingItem = await musicPlayer.nowPlayingItem else {
-            
             return nil
         }
         

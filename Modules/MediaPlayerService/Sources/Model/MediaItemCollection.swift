@@ -15,7 +15,6 @@ public struct MediaItemCollection: Identifiable, Sendable {
     public let artist: String
     public let artwork: Image?
     public let items: [MediaItem]
-    
     /// 재생을 위해 필요한대 Sendable를 따르지 않음..
     public let original: MPMediaItemCollection
     
@@ -25,7 +24,6 @@ public struct MediaItemCollection: Identifiable, Sendable {
         let uiImage = collection.representativeItem?.artwork?.image(at: CGSize(width: 400, height: 400))
         self.artwork = uiImage != nil ? Image(uiImage: uiImage!) : nil
         self.items = collection.items.map { MediaItem(from: $0) }
-        
         self.original = collection
     }
     
@@ -34,7 +32,6 @@ public struct MediaItemCollection: Identifiable, Sendable {
         self.artist = artist
         self.artwork = artwork
         self.items = items
-        
         self.original = MPMediaItemCollection(items: [])
     }
     

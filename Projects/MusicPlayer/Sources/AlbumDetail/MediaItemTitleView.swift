@@ -12,8 +12,7 @@ struct MediaItemTitleView: View {
     let mediaItem: MediaItem
     
     var body: some View {
-        Label(mediaItem.title, systemImage: "music.note")
-        
+        Label(mediaItem.title, systemImage: "music.note")   
     }
 }
 

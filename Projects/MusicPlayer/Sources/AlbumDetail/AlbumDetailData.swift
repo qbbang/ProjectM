@@ -57,10 +57,9 @@ final class AlbumDetailData: ObservableObject {
         var shuffleMediaItems = mediaItems
         shuffleMediaItems.shuffle()
         mediaItems = shuffleMediaItems
+        updatePlayButton(for: true)
         
-        Task {
-            await mediaPlayerService.shuffle(items: shuffleMediaItems)
-        }
+        Task { await mediaPlayerService.shuffle(items: shuffleMediaItems) }
     }
     
     @MainActor
@@ -106,26 +105,31 @@ extension AlbumDetailData {
                 artist: "Artist",
                 artwork: nil,
                 items: [
-                    MediaItem(id: 123,
-                              title: "내가 제일 잘 나가",
-                              original: .init()
-                             ),
-                    MediaItem(id: 234,
-                              title: "밤바라빠 빠빠빠빠빠빠 ",
-                              original: .init()
-                             ),
-                    MediaItem(id: 345,
-                              title: "누가 봐도 내가 좀 죽여주잖아",
-                              original: .init()
-                             ),
-                    MediaItem(id: 456,
-                              title: "타이틀",
-                              original: .init()
-                             ),
-                    MediaItem(id: 567,
-                              title: "무제",
-                              original: .init()
-                             )
+                    MediaItem(
+                        id: 123,
+                        title: "내가 제일 잘 나가",
+                        original: .init()
+                    ),
+                    MediaItem(
+                        id: 234,
+                        title: "밤바라빠 빠빠빠빠빠빠 ",
+                        original: .init()
+                    ),
+                    MediaItem(
+                        id: 345,
+                        title: "누가 봐도 내가 좀 죽여주잖아",
+                        original: .init()
+                    ),
+                    MediaItem(
+                        id: 456,
+                        title: "타이틀",
+                        original: .init()
+                    ),
+                    MediaItem(
+                        id: 567,
+                        title: "무제",
+                        original: .init()
+                    )
                 ]
             )
         )

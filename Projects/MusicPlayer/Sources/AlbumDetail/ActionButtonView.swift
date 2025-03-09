@@ -23,7 +23,6 @@ struct ActionButtonView: View {
                     .resizable()
                     .frame(width: 24, height: 24)
                     .tint(Color.black)
-                    
             }
             .frame(width: width, height: 60)
             .background(Color.gray.opacity(0.2))

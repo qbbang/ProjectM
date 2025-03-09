@@ -15,7 +15,6 @@ public struct MediaItem: Identifiable, Sendable {
     init(from mediaItem: MPMediaItem) {
         self.id = mediaItem.persistentID
         self.title = mediaItem.title ?? "Unknown"
-        
         self.original = mediaItem
     }
     
