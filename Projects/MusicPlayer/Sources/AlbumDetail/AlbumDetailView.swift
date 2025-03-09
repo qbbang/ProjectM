@@ -121,10 +121,15 @@ struct AlbumDetailView: View {
         VStack(spacing: 16) {
             Spacer(minLength: 8)
             
-            ForEach(data.soungs, id: \.id) { soung in
-                Label(soung.title, systemImage: "music.note")
+            ForEach(data.mediaItems, id: \.id) { mediaItem in
+                MediaItemTitleView(mediaItem: mediaItem)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
+                    .onTapGesture {
+                        Task {
+                            await data.play(mediaItem: mediaItem)
+                        }
+                    }
             }
         }
         .padding()
