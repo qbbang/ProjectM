@@ -40,7 +40,6 @@ struct AlbumView: View {
         }
     }
     
-    @ViewBuilder
     private var infoView: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(album.title)
@@ -53,4 +52,20 @@ struct AlbumView: View {
         .frame(height: 40, alignment: .topLeading)
         .padding(.horizontal, 16)
     }
+}
+
+#Preview {
+    GeometryReader { geometry in
+        AlbumView(
+            album: AlbumDisplayItem(
+                title: "title",
+                artist: "artist",
+                artwork: Image("dpad.left.filled"),
+                mediaItemCollection: .init(items: [])
+            ),
+            geometry: geometry
+        )
+        .padding()
+    }
+    .frame(height: 200)
 }

@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import MediaPlayerService
 
 struct AlbumListView: View {
     @StateObject var data: AlbumListData
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
         NavigationView {
@@ -48,6 +49,7 @@ struct AlbumListView: View {
         }
     }
     
+    // TODO: 제거하거나 기능을 구현하거나
     private var microphoneBarItem: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: {
@@ -57,4 +59,8 @@ struct AlbumListView: View {
             }
         }
     }
+}
+
+#Preview {
+    AlbumListView(data: .mock())
 }

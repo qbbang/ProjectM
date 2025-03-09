@@ -8,7 +8,6 @@
 import MediaPlayer
 
 public final actor MediaPlayerService: MediaPlayerServiceable {
-    
     @MainActor
     private let musicPlayer = MPMusicPlayerApplicationController.systemMusicPlayer
     
@@ -37,7 +36,7 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
             query = MPMediaQuery.albums()
         case .artists():
             query = MPMediaQuery.artists()
-        
+            
         default:
             query = .init()
         }
@@ -74,4 +73,15 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         await musicPlayer.skipToBeginning()
         await musicPlayer.stop()
     }
+    
+    public func shuffle(items: [MPMediaItem]) async {
+        await musicPlayer.stop()
+        /// 프레임워크에서 제공하는 임의 재생 기능
+        // await musicPlayer.shuffleMode = .songs
+        
+        let shuffleQueue = MPMediaItemCollection(items: items)
+        await musicPlayer.setQueue(with: shuffleQueue)
+        await musicPlayer.play()
+    }
+    
 }

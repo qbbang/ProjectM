@@ -15,10 +15,8 @@ public protocol MediaPlayerServiceable {
     func replaceQueue(collection: MPMediaItemCollection) async
     func playbackState() async -> MPMusicPlaybackState
     func play() async
-    /// paused 상태를 가짐
-    func pause() async
-    /// paused 상태를 가짐
-    func stop() async
-    /// paused 상태를 가짐
-    func restart() async
+    func pause() async      /// paused 상태를 가짐
+    func stop() async       /// paused 상태를 가짐
+    func restart() async    /// paused 상태를 가짐
+    func shuffle(items: [MPMediaItem]) async
 }
