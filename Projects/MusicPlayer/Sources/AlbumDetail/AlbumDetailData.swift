@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 import MediaPlayerService
 
 final class AlbumDetailData: ObservableObject {
@@ -14,6 +13,7 @@ final class AlbumDetailData: ObservableObject {
     private let album: MediaItemCollection
     
     @Published var mediaItems: [MediaItem] = []
+    @Published var playbackState = (isPlaying: false, buttonImage: "play.fill")
     
     var title: String {
         album.title
@@ -34,8 +34,12 @@ final class AlbumDetailData: ObservableObject {
         mediaItems = album.items
     }
     
+    
+    // MARK: - Action
+    // MARK: - Public
     @MainActor
     func play() async {
+        updatePlayButton(for: true)
         Task {
             await mediaPlayerService.replaceQueue(items: mediaItems)
             await mediaPlayerService.play()
@@ -44,9 +48,8 @@ final class AlbumDetailData: ObservableObject {
     
     @MainActor
     func pause() async {
-        Task {
-            await mediaPlayerService.pause()
-        }
+        updatePlayButton(for: false)
+        Task { await mediaPlayerService.pause() }
     }
     
     @MainActor
@@ -62,10 +65,36 @@ final class AlbumDetailData: ObservableObject {
     
     @MainActor
     func play(mediaItem: MediaItem) async {
-        Task {
-            await mediaPlayerService.play(mediaItem, in: mediaItems)
+        updatePlayButton(for: true)
+        Task { await mediaPlayerService.play(mediaItem, in: mediaItems) }
+    }
+    
+    @MainActor
+    func updatePlaybackState() async {
+        let state = await Task {
+            await mediaPlayerService.playbackState()
+        }.value
+        
+        guard state == .playing else {
+            updatePlayButton(for: false)
+            return
+        }
+        
+        let nowPlayingAlbumPersistentID = await Task {
+            await mediaPlayerService.nowPlayingItem()?.original.albumPersistentID
+        }.value
+        
+        if nowPlayingAlbumPersistentID == album.original.representativeItem?.albumPersistentID {
+            updatePlayButton(for: true)
         }
     }
+    
+    // MARK: Private
+    private func updatePlayButton(for isPlaying: Bool) {
+        let buttonImage = isPlaying ? "pause.fill" : "play.fill"
+        playbackState = (isPlaying: isPlaying, buttonImage: buttonImage)
+    }
+    
 }
 
 extension AlbumDetailData {

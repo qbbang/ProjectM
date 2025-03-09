@@ -13,6 +13,9 @@ public protocol MediaPlayerServiceable {
     func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem]
     func replaceQueue(items: [MediaItem]) async
     func replaceQueue(collection: MPMediaItemCollection) async
+    
+    /// stopped, playing, paused, interrupted, seekingForward, seekingBackward 상태를 가짐.
+    /// https://developer.apple.com/documentation/mediaplayer/mpmusicplaybackstate
     func playbackState() async -> MPMusicPlaybackState
     func play() async
     func pause() async      /// paused 상태를 가짐

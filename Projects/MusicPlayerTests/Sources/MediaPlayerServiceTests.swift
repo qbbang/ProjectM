@@ -99,7 +99,7 @@ struct MediaPlayerServiceTests {
         let items = await mediaPlayerService.fetchMediaQuery(for: .songs()).map { MediaItem(from: $0) }
         guard let selectedItem = items.randomElement() else { return }
         
-        await mediaPlayerService.play(selected: selectedItem, in: items)
+        await mediaPlayerService.play(selectedItem, in: items)
         
         guard let item = await mediaPlayerService.nowPlayingItem() else {
             return

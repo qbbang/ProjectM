@@ -11,9 +11,7 @@ import MediaPlayerService
 struct AlbumDetailView: View {
     // TODO: matchedGeometryEffect 활용한 셔플 애니메이션 다시 할 것
     // @Namespace private var animation
-    @State private var isPlaying = false
-    @State private var buttonImage = "play.fill"
-    
+    @Environment(\.scenePhase) var scenePhase
     @ObservedObject var data: AlbumDetailData
     
     var body: some View {
@@ -21,6 +19,9 @@ struct AlbumDetailView: View {
             contentView
         }
         .frame(maxHeight: .infinity, alignment: .top)
+        .task {
+            await data.updatePlaybackState()
+        }
     }
     
     // MARK: Private
@@ -30,7 +31,7 @@ struct AlbumDetailView: View {
             albumInfoView
         }
         Spacer(minLength: 16)
-        soungList
+        mediaItemListView
     }
     
     @ViewBuilder
@@ -43,6 +44,11 @@ struct AlbumDetailView: View {
         .padding()
         
         actionButtons
+            .onChange(of: scenePhase) { scenePhase in
+                if scenePhase == .active {
+                    Task { await data.updatePlaybackState() }
+                }
+            }
     }
     
     @ViewBuilder
@@ -81,21 +87,16 @@ struct AlbumDetailView: View {
         GeometryReader { geometry in
             ActionButtonView(
                 width: (geometry.size.width / 2) - 4,
-                buttonImage: buttonImage,
+                buttonImage: data.playbackState.buttonImage,
                 onPlayPauseToggle: {
-                    if isPlaying {
+                    if data.playbackState.isPlaying {
                         Task { await data.pause() }
-                        buttonImage = "play.fill"
                     } else {
                         Task { await data.play() }
-                        buttonImage = "pause.fill"
                     }
-                    isPlaying.toggle()
                 },
                 onShuffle: {
-                    Task { @MainActor in
-                        Task { await data.shuffle() }
-                    }
+                    Task { await data.shuffle() }
                 }
             )
         }
@@ -104,9 +105,9 @@ struct AlbumDetailView: View {
         .padding(.vertical, 8)
     }
     
-    private var soungList: some View {
+    private var mediaItemListView: some View {
         ScrollView {
-            soungRow
+            mediaItemView
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -117,7 +118,7 @@ struct AlbumDetailView: View {
         )
     }
     
-    private var soungRow: some View {
+    private var mediaItemView: some View {
         VStack(spacing: 16) {
             Spacer(minLength: 8)
             
@@ -126,9 +127,7 @@ struct AlbumDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .onTapGesture {
-                        Task {
-                            await data.play(mediaItem: mediaItem)
-                        }
+                        Task { await data.play(mediaItem: mediaItem) }
                     }
             }
         }
