@@ -37,7 +37,7 @@ struct AlbumListView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(data.albums) { album in
-                        let data = AlbumDetailData(mediaPlayerService: data.mediaPlayerService, album: album)
+                        let data = AlbumDetailData(album: album)
                         NavigationLink(destination: AlbumDetailView(data: data)) {
                             AlbumView(album: album, geometry: geometry)
                         }

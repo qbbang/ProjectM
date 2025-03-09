@@ -12,11 +12,7 @@ import Testing
 @Suite("MediaPlayerService")
 /// 음악앱 접근은 시뮬레이션에서 불가함으로 디바이스에 음악 데이터를 밀어 넣고 진행해야 함.
 struct MediaPlayerServiceTests {
-    private let mediaPlayerService: MediaPlayerServiceable
-    
-    private init() {
-        mediaPlayerService = MediaPlayerService()
-    }
+    private let mediaPlayerService = MediaPlayerService.shared
     
     /// 실패 시 설정 -> 앱 ->  MusicPlayer에서 미디어 및 Apple Music를 수동으로 허용.
     @Test

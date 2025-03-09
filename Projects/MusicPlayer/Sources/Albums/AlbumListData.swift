@@ -9,18 +9,13 @@ import Foundation
 import MediaPlayerService
 
 final class AlbumListData: ObservableObject {
-    let mediaPlayerService: MediaPlayerServiceable
     
     @Published var albums: [MediaItemCollection] = []
-    
-    init(mediaPlayerService: MediaPlayerServiceable) {
-        self.mediaPlayerService = mediaPlayerService
-    }
     
     @MainActor
     func fetchMediaItems() async {
         let items = await Task {
-            await mediaPlayerService.fetchAlbumDisplayItems()
+            await MediaPlayerService.shared.fetchAlbumDisplayItems()
         }.value
         
         self.albums = items
@@ -29,7 +24,7 @@ final class AlbumListData: ObservableObject {
 
 extension AlbumListData {
     static func mock() -> AlbumListData {
-        let data = AlbumListData(mediaPlayerService: MediaPlayerService())
+        let data = AlbumListData()
         data.albums = [
             MediaItemCollection(title: "Album 1", artist: "Artist 1", artwork: nil, items: []),
             MediaItemCollection(title: "Album 2", artist: "Artist 2", artwork: nil, items: []),

@@ -9,7 +9,6 @@ import SwiftUI
 import MediaPlayerService
 
 final class AlbumDetailData: ObservableObject {
-    private let mediaPlayerService: MediaPlayerServiceable
     private let album: MediaItemCollection
     
     @Published var mediaItems: [MediaItem] = []
@@ -27,8 +26,7 @@ final class AlbumDetailData: ObservableObject {
         album.artist
     }
     
-    init(mediaPlayerService: MediaPlayerServiceable, album: MediaItemCollection) {
-        self.mediaPlayerService = mediaPlayerService
+    init(album: MediaItemCollection) {
         self.album = album
         
         mediaItems = album.items
@@ -41,15 +39,15 @@ final class AlbumDetailData: ObservableObject {
     func play() async {
         updatePlayButton(for: true)
         Task {
-            await mediaPlayerService.replaceQueue(items: mediaItems)
-            await mediaPlayerService.play()
+            await MediaPlayerService.shared.replaceQueue(items: mediaItems)
+            await MediaPlayerService.shared.play()
         }
     }
     
     @MainActor
     func pause() async {
         updatePlayButton(for: false)
-        Task { await mediaPlayerService.pause() }
+        Task { await MediaPlayerService.shared.pause() }
     }
     
     @MainActor
@@ -59,19 +57,19 @@ final class AlbumDetailData: ObservableObject {
         mediaItems = shuffleMediaItems
         updatePlayButton(for: true)
         
-        Task { await mediaPlayerService.shuffle(items: shuffleMediaItems) }
+        Task { await MediaPlayerService.shared.shuffle(items: shuffleMediaItems) }
     }
     
     @MainActor
     func play(mediaItem: MediaItem) async {
         updatePlayButton(for: true)
-        Task { await mediaPlayerService.play(mediaItem, in: mediaItems) }
+        Task { await MediaPlayerService.shared.play(mediaItem, in: mediaItems) }
     }
     
     @MainActor
     func updatePlaybackState() async {
         let state = await Task {
-            await mediaPlayerService.playbackState()
+            await MediaPlayerService.shared.playbackState()
         }.value
         
         guard state == .playing else {
@@ -80,7 +78,7 @@ final class AlbumDetailData: ObservableObject {
         }
         
         let nowPlayingAlbumPersistentID = await Task {
-            await mediaPlayerService.nowPlayingItem()?.original.albumPersistentID
+            await MediaPlayerService.shared.nowPlayingItem()?.original.albumPersistentID
         }.value
         
         if nowPlayingAlbumPersistentID == album.original.representativeItem?.albumPersistentID {
@@ -99,7 +97,6 @@ final class AlbumDetailData: ObservableObject {
 extension AlbumDetailData {
     static func mock() -> AlbumDetailData {
         let data = AlbumDetailData(
-            mediaPlayerService: MediaPlayerService(),
             album: MediaItemCollection(
                 title: "Album",
                 artist: "Artist",
