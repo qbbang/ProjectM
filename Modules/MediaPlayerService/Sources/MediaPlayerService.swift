@@ -155,12 +155,4 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     public func repeatMode(_ mode: RepeatMode) async {
         await musicPlayer.repeatMode = mode.toMPMusicRepeatMode()
     }
-    
-    public func beginGeneratingPlaybackNotifications() async {
-        await musicPlayer.beginGeneratingPlaybackNotifications()
-    }
-    
-    public func endGeneratingPlaybackNotifications() async {
-        await musicPlayer.endGeneratingPlaybackNotifications()
-    }
 }

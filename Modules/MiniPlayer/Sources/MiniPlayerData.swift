@@ -79,11 +79,11 @@ public final class MiniPlayerData: ObservableObject {
         
         switch repeatMode {
         case .none:
-            nextRepeatMode = .one
-        case .one:
             nextRepeatMode = .all
+        case .one:
+            nextRepeatMode = .none
         case .all:
-            nextRepeatMode = .default
+            nextRepeatMode = .one
         case .default:
             nextRepeatMode = .none
         }
@@ -110,9 +110,8 @@ public final class MiniPlayerData: ObservableObject {
                     self.nowPlayDuration = nowPlayDuration - time
                 }
                 
-                // TODO: beginGeneratingPlaybackNotifications 대체할 방안 구상하기
                 if self.nowPlayDuration <= 1 {
-                    
+                    await self.endGeneratingPlayback()
                 }
             }
         }
@@ -121,5 +120,14 @@ public final class MiniPlayerData: ObservableObject {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+    
+    /// beginGeneratingPlaybackNotifications 대체
+    private func endGeneratingPlayback() async {
+        stopTimer()
+        await MediaPlayerService.shared.stop()
+        await MediaPlayerService.shared.skipToNextItem()
+        await MediaPlayerService.shared.play()
+        await sync()
     }
 }
