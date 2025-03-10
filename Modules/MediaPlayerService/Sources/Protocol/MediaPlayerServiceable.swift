@@ -8,7 +8,7 @@
 import MediaPlayer
 
 public protocol MediaPlayerServiceable {
-    func requestAuthorization() async
+    func requestAuthorization() async -> MediaPlayerAuthorizationStatus
     func fetchAlbumDisplayItems() async -> [MediaItemCollection]
     func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem]
     func replaceQueue(items: [MediaItem]) async

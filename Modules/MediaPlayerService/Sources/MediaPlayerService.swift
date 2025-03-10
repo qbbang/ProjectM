@@ -22,12 +22,29 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     @MainActor
     private let musicPlayer = MPMusicPlayerApplicationController.systemMusicPlayer
     
-    public func requestAuthorization() async {
+    public func requestAuthorization() async -> MediaPlayerAuthorizationStatus {
         await withCheckedContinuation { continuation in
-            MPMediaLibrary.requestAuthorization { _ in
-                continuation.resume()
+            MPMediaLibrary.requestAuthorization { status in
+                let authorizationStatus: MediaPlayerAuthorizationStatus
+                switch status {
+                case .notDetermined:
+                    authorizationStatus = .notDetermined
+                case .denied:
+                    authorizationStatus = .denied
+                case .restricted:
+                    authorizationStatus = .restricted
+                case .authorized:
+                    authorizationStatus = .authorized
+                /// Switch covers known cases, but 'MPMediaLibraryAuthorizationStatus' may have additional unknown values, possibly added in future versions; this is an error in the Swift 6 language mode
+                @unknown default:
+                    authorizationStatus = .notDetermined
+                }
+                
+                continuation.resume(returning: authorizationStatus)
             }
         }
+        
+        
     }
     
     public func fetchAlbumDisplayItems() async -> [MediaItemCollection] {

@@ -18,11 +18,7 @@ struct MusicPlayerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            let data = AlbumListData()
-            AlbumListView(data: data)
-                .task {
-                    await data.fetchMediaItems()
-                }
+            LaunchScreenView()
         }
     }
     
@@ -37,3 +33,4 @@ struct MusicPlayerApp: App {
         appearance.compactScrollEdgeAppearance = navigationBarAppearance
     }
 }
+
