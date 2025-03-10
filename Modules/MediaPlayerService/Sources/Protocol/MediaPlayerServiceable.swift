@@ -38,4 +38,6 @@ public protocol MediaPlayerServiceable {
     func indexOfNowPlayingItem() async -> Int
     func skipToNextItem() async
     func skipToPreviousItem() async
+    func repeatMode() async -> RepeatMode
+    func repeatMode(_ mode: RepeatMode) async
 }

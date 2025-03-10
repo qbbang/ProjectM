@@ -30,11 +30,13 @@ public struct MiniPlayerView: View {
         .cornerRadius(16)
         .sheet(isPresented: $isModalPresented) {
             if #available(iOS 16.0, *) {
-                DetailView()
+                MiniPlayerDetailView()
+                    .environmentObject(miniPlayerData)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             } else {
-                DetailView()
+                MiniPlayerDetailView()
+                    .environmentObject(miniPlayerData)
             }
         }
     }
@@ -91,15 +93,4 @@ public struct MiniPlayerView: View {
 #Preview {
     MiniPlayerView()
         .frame(height: 80)
-}
-
-struct DetailView: View {
-    var body: some View {
-        VStack {
-            Text("상세 화면")
-                .font(.largeTitle)
-                .padding()
-        }
-        
-    }
 }

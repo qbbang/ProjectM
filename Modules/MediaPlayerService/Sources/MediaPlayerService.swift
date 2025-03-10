@@ -15,6 +15,7 @@ SwiftUI에서 의존성 주입(DI)은 보통 EnvironmentObject를 통해 이루�
   ex) 모듈을 사용하는 프로젝트에서 클래스로 감싸서 사용하거나 등등
  */
 public final actor MediaPlayerService: MediaPlayerServiceable {
+    
     public static let shared = MediaPlayerService()
     
     private init() { }
@@ -145,5 +146,21 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     
     public func skipToPreviousItem() async {
         await musicPlayer.skipToPreviousItem()
+    }
+    
+    public func repeatMode() async -> RepeatMode {
+        await RepeatMode(mpMusicRepeatMode: musicPlayer.repeatMode)
+    }
+    
+    public func repeatMode(_ mode: RepeatMode) async {
+        await musicPlayer.repeatMode = mode.toMPMusicRepeatMode()
+    }
+    
+    public func beginGeneratingPlaybackNotifications() async {
+        await musicPlayer.beginGeneratingPlaybackNotifications()
+    }
+    
+    public func endGeneratingPlaybackNotifications() async {
+        await musicPlayer.endGeneratingPlaybackNotifications()
     }
 }
