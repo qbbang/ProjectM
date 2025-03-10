@@ -42,10 +42,10 @@ public struct MiniPlayerView: View {
     private var playPauseButton: some View {
         Button(action: {
             Task {
-                await miniPlayerData.updatePlaybackState()
+                await miniPlayerData.togglePlayback()
             }
         }) {
-            Image(systemName: miniPlayerData.playbackState.buttonImage)
+            Image(systemName: miniPlayerData.playbackStatus.buttonImage)
                 .resizable()
                 .frame(width: 24, height: 24)
                 .tint(Color.black)

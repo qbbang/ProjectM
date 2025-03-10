@@ -7,12 +7,14 @@
 
 import SwiftUI
 import MediaPlayerService
+import MiniPlayer
 
 struct AlbumDetailView: View {
     // TODO: matchedGeometryEffect 활용한 셔플 애니메이션 다시 할 것
     // @Namespace private var animation
     @Environment(\.scenePhase) var scenePhase
-    @ObservedObject var data: AlbumDetailData
+    @EnvironmentObject var miniPlayerData: MiniPlayerData
+    @StateObject var data: AlbumDetailData
     
     var body: some View {
         VStack(spacing: 0) {
@@ -20,7 +22,7 @@ struct AlbumDetailView: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .task {
-            await data.updatePlaybackState()
+            await miniPlayerData.sync()
         }
     }
     
@@ -46,7 +48,7 @@ struct AlbumDetailView: View {
         actionButtons
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .active {
-                    Task { await data.updatePlaybackState() }
+                    Task { await miniPlayerData.sync() }
                 }
             }
     }
@@ -85,18 +87,29 @@ struct AlbumDetailView: View {
     
     private var actionButtons: some View {
         GeometryReader { geometry in
+            let isCurrentAlbumPlaying = miniPlayerData.isPlayingAlbum(data.album)
+            
             ActionButtonView(
                 width: (geometry.size.width / 2) - 4,
-                buttonImage: data.playbackState.buttonImage,
+                buttonImage: isCurrentAlbumPlaying ? "pause.fill" : "play.fill",
                 onPlayPauseToggle: {
-                    if data.playbackState.isPlaying {
-                        Task { await data.pause() }
+                    if isCurrentAlbumPlaying {
+                        Task {
+                            await data.pause()
+                            await miniPlayerData.sync()
+                        }
                     } else {
-                        Task { await data.play() }
+                        Task {
+                            await data.play()
+                            await miniPlayerData.sync()
+                        }
                     }
                 },
                 onShuffle: {
-                    Task { await data.shuffle() }
+                    Task {
+                        await data.shuffle()
+                        await miniPlayerData.sync()
+                    }
                 }
             )
         }
@@ -127,7 +140,10 @@ struct AlbumDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .onTapGesture {
-                        Task { await data.play(mediaItem: mediaItem) }
+                        Task {
+                            await data.play(mediaItem: mediaItem)
+                            await miniPlayerData.sync()
+                        }
                     }
             }
         }
