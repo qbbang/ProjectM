@@ -9,16 +9,11 @@ import Foundation
 import MediaPlayerService
 
 final class AlbumListData: ObservableObject {
-    
     @Published var albums: [MediaItemCollection] = []
     
     @MainActor
-    func fetchMediaItems() async {
-        let items = await Task {
-            await MediaPlayerService.shared.fetchAlbumDisplayItems()
-        }.value
-        
-        self.albums = items
+    func fetchAlbumList() async {
+        self.albums = await MediaPlayerService.shared.fetchAlbumDisplayItems()
     }
 }
 

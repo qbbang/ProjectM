@@ -6,26 +6,37 @@
 //
 
 import SwiftUI
-import Combine
 import MediaPlayerService
 
+@MainActor
 public final class MiniPlayerData: ObservableObject {
+    @Published public private(set) var isMediaItemsFetched = false
     @Published public private(set) var miniPlayerHeight: CGFloat = 80
     @Published public private(set) var playbackStatus: PlaybackStatus = .paused
     @Published public private(set) var nowPlayingItem: MediaItem? = nil
     @Published public private(set) var nowPlayTime: TimeInterval = 0
     @Published public private(set) var nowPlayDuration: TimeInterval = 0
-    @Published public private(set) var repeatMode: RepeatMode = .default
+    @Published public private(set) var repeatMode: RepeatMode = .none
     
     private var timer: Timer?
-    private var isEditingDuration = false
-    private var cancellables: Set<AnyCancellable> = []
     
     var title: String { nowPlayingItem?.title ?? "재생 중인 곡이 없습니다." }
     var artistName: String { nowPlayingItem?.artist ?? "Unknown Artist" }
     var artwork: Image? { nowPlayingItem?.artwork }
     
     public init() { }
+    
+    // MARK: - Functions
+    // MARK: Public(authorization)
+    public func fetchedAlbumList() async {
+        isMediaItemsFetched = true
+    }
+    
+    // MARK: Public(update miniPlayer)
+    @MainActor
+    public func requestAuthorization() async ->  MediaPlayerAuthorizationStatus {
+        await MediaPlayerService.shared.requestAuthorization()
+    }
     
     /// paused인 경우 nowPlayingItem가 nil 아님.
     @MainActor
@@ -97,6 +108,8 @@ public final class MiniPlayerData: ObservableObject {
         nowPlaying.original.albumPersistentID == album.original.representativeItem?.albumPersistentID
     }
     
+    
+    // MARK: Private
     private func startTimer() {
         let nowPlayDuration = nowPlayingItem?.playbackDuration ?? 0
         

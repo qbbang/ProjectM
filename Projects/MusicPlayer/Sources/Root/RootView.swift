@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
-@preconcurrency import MediaPlayerService
+import MiniPlayer
 
 /// 미디어 접근권한 없이 사용할 수 없기 때문에 접근권한에 따라 노출하는 화면이 달라진다.
 struct RootView: View {
-    @State var isAuthorized: Bool? = nil
+    @StateObject private var miniPlayerData = MiniPlayerData()
+    @State private var isAuthorized: Bool? = nil
     
     var body: some View {
         VStack {
             contentView
         }
         .task {
-            let authorization = await MediaPlayerService.shared.requestAuthorization()
+            let authorization = await miniPlayerData.requestAuthorization()
             if authorization == .authorized {
                 isAuthorized = true
             } else {
@@ -28,7 +29,7 @@ struct RootView: View {
     
     private var contentView: some View {
         ZStack {
-            if isAuthorized == nil{
+            if isAuthorized == nil {
                 launchView
             } else if isAuthorized ?? false {
                 mainView
@@ -46,13 +47,16 @@ struct RootView: View {
     private var mainView: some View {
         let data = AlbumListData()
         let albumListView = AlbumListView(data: data).task {
-            await data.fetchMediaItems()
+            await data.fetchAlbumList()
+            await miniPlayerData.fetchedAlbumList()
         }
         
         MusicPlayerContainerView(content: albumListView)
+            .environmentObject(miniPlayerData)
     }
 }
 
 #Preview {
-    RootView(isAuthorized: true)
+    RootView()
+        .environmentObject(MiniPlayerData())
 }

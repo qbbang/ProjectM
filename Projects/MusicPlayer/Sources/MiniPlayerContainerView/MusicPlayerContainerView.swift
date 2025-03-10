@@ -9,7 +9,7 @@ import SwiftUI
 import MiniPlayer
 
 struct MusicPlayerContainerView<Content: View>: View {
-    @StateObject private var miniPlayerData = MiniPlayerData()
+    @EnvironmentObject private var miniPlayerData: MiniPlayerData
     let content: Content
     
     var body: some View {
@@ -17,12 +17,17 @@ struct MusicPlayerContainerView<Content: View>: View {
             content
                 .environmentObject(miniPlayerData)
             
-            MiniPlayerView()
-                .environmentObject(miniPlayerData)
-                .frame(height: miniPlayerData.miniPlayerHeight)
-                .task {
-                    await miniPlayerData.sync()
+            if miniPlayerData.isMediaItemsFetched {
+                withAnimation {
+                    MiniPlayerView()
+                        .environmentObject(miniPlayerData)
+                        .frame(height: miniPlayerData.miniPlayerHeight)
+                        .task {
+                            await miniPlayerData.sync()
+                        }
+                        .transition(.opacity)
                 }
+            }
         }
     }
 }
