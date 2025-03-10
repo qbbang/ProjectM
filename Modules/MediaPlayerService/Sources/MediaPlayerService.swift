@@ -134,4 +134,16 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     public func seek(to time: TimeInterval) async {
         await musicPlayer.currentPlaybackTime = time
     }
+    
+    public func indexOfNowPlayingItem() async -> Int {
+        await musicPlayer.indexOfNowPlayingItem
+    }
+    
+    public func skipToNextItem() async {
+        await musicPlayer.skipToNextItem()
+    }
+    
+    public func skipToPreviousItem() async {
+        await musicPlayer.skipToPreviousItem()
+    }
 }

@@ -125,6 +125,29 @@ struct MediaPlayerServiceTests {
         #expect(currentPlaybackTime.isApproximatelyEqual(to: seekTime, tolerance: 1.0), "재생 시간이 1초 이내로 일치하지 않습니다.")
     }
     
+    @Test
+    func indexOfNowPlayingItem() async {
+        await setPlayList()
+        await mediaPlayerService.play()
+        
+        let indexRow = await mediaPlayerService.indexOfNowPlayingItem()
+        #expect(indexRow == 0, "첫번째 곡이 아닙니다.")
+    }
+    
+    @Test
+    func skipToItem() async {
+        await setPlayList()
+        await mediaPlayerService.play()
+        
+        await mediaPlayerService.skipToNextItem()
+        let firstIndexRow = await mediaPlayerService.indexOfNowPlayingItem()
+        #expect(firstIndexRow == 1, "두 번째 곡이 아닙니다.")
+        
+        await mediaPlayerService.skipToPreviousItem()
+        let secondIndexRow = await mediaPlayerService.indexOfNowPlayingItem()
+        #expect(secondIndexRow == 0, "첫번째 곡이 아닙니다.")
+    }
+    
     private func setPlayList() async {
         let items = await mediaPlayerService.fetchMediaQuery(for: .songs())
         let modifierItems = items.map { MediaItem(from: $0)}

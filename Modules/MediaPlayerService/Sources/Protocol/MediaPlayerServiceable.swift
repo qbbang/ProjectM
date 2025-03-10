@@ -35,4 +35,7 @@ public protocol MediaPlayerServiceable {
     func nowPlayingItem() async -> MediaItem?
     func playbackTime() async -> TimeInterval
     func seek(to time: TimeInterval) async
+    func indexOfNowPlayingItem() async -> Int
+    func skipToNextItem() async
+    func skipToPreviousItem() async
 }
