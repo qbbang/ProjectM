@@ -18,7 +18,7 @@ struct MusicPlayerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LaunchScreenView()
+            RootView()
         }
     }
     

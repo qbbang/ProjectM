@@ -1,5 +1,5 @@
 //
-//  LaunchScreenView.swift
+//  RootView.swift
 //  MusicPlayer
 //
 //  Created by MK-AM16-009 on 3/10/25.
@@ -8,8 +8,10 @@
 import SwiftUI
 @preconcurrency import MediaPlayerService
 
-struct LaunchScreenView: View {
+/// 미디어 접근권한 없이 사용할 수 없기 때문에 접근권한에 따라 노출하는 화면이 달라진다.
+struct RootView: View {
     @State var isAuthorized: Bool? = nil
+    
     var body: some View {
         VStack {
             contentView
@@ -27,19 +29,28 @@ struct LaunchScreenView: View {
     private var contentView: some View {
         ZStack {
             if isAuthorized == nil{
-                Image("LaunchImage")
+                launchView
             } else if isAuthorized ?? false {
-                let data = AlbumListData()
-                AlbumListView(data: data).task {
-                    await data.fetchMediaItems()
-                }
+                mainView
             } else {
                 MeualAuthorizationView()
             }
         }
     }
+    
+    private var launchView: some View {
+        Image("LaunchImage")
+    }
+    
+    @ViewBuilder
+    private var mainView: some View {
+        let data = AlbumListData()
+        AlbumListView(data: data).task {
+            await data.fetchMediaItems()
+        }
+    }
 }
 
 #Preview {
-    LaunchScreenView(isAuthorized: true)
+    RootView(isAuthorized: true)
 }
