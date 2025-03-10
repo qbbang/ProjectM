@@ -33,4 +33,6 @@ public protocol MediaPlayerServiceable {
     func shuffle(items: [MediaItem]) async
     func play(_ selectedItem: MediaItem, in items: [MediaItem]) async
     func nowPlayingItem() async -> MediaItem?
+    func playbackTime() async -> TimeInterval
+    func seek(to time: TimeInterval) async
 }

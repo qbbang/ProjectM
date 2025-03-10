@@ -7,7 +7,7 @@
 
 import Testing
 @preconcurrency import MediaPlayer
-@testable import MediaPlayerService
+@testable @preconcurrency import MediaPlayerService
 
 @Suite("MediaPlayerService")
 /// 음악앱 접근은 시뮬레이션에서 불가함으로 디바이스에 음악 데이터를 밀어 넣고 진행해야 함.
@@ -17,12 +17,9 @@ struct MediaPlayerServiceTests {
     /// 실패 시 설정 -> 앱 ->  MusicPlayer에서 미디어 및 Apple Music를 수동으로 허용.
     @Test
     func requestAuthorization() async throws {
-        let status = MPMediaLibrary.authorizationStatus()
-        if status == .notDetermined {
-            await mediaPlayerService.requestAuthorization()
-        }
+        let status = await MediaPlayerService.shared.requestAuthorization()
         
-        #expect(MPMediaLibrary.authorizationStatus() == .authorized, "미디어 라이브러리 접근 권한이 필요합니다.")
+        #expect(status == .authorized, "미디어 라이브러리 접근 권한이 필요합니다.")
     }
     
     @Test
@@ -107,9 +104,31 @@ struct MediaPlayerServiceTests {
         #expect(selectedItem.title == item.title, "선택된 음악이 다릅니다")
     }
     
+    
+    @Test
+    func playbackTime() async {
+        await setPlayList()
+        await mediaPlayerService.play()
+        
+        let currentPlaybackTime = await mediaPlayerService.playbackTime()
+        print(currentPlaybackTime)
+    }
+    
+    @Test
+    func seek() async {
+        await setPlayList()
+        await mediaPlayerService.play()
+        let seekTime: TimeInterval = 30
+        await mediaPlayerService.seek(to: 30)
+        let currentPlaybackTime = await mediaPlayerService.playbackTime()
+        
+        #expect(currentPlaybackTime.isApproximatelyEqual(to: seekTime, tolerance: 1.0), "재생 시간이 1초 이내로 일치하지 않습니다.")
+    }
+    
     private func setPlayList() async {
         let items = await mediaPlayerService.fetchMediaQuery(for: .songs())
         let modifierItems = items.map { MediaItem(from: $0)}
         await mediaPlayerService.replaceQueue(items: modifierItems)
     }
+    
 }

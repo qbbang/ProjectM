@@ -13,7 +13,9 @@ public struct MediaItem: Identifiable, Sendable {
     public let title: String
     public let artist: String
     public let artwork: Image?
+    public let playbackDuration: TimeInterval?
     public let original: MPMediaItem
+    
     
     init(from mediaItem: MPMediaItem) {
         self.id = mediaItem.persistentID
@@ -21,6 +23,7 @@ public struct MediaItem: Identifiable, Sendable {
         self.artist = mediaItem.artist ?? "Unknown"
         let uiImage = mediaItem.artwork?.image(at: CGSize(width: 400, height: 400))
         self.artwork = uiImage != nil ? Image(uiImage: uiImage!) : nil
+        self.playbackDuration = mediaItem.playbackDuration
         self.original = mediaItem
     }
     
@@ -29,6 +32,7 @@ public struct MediaItem: Identifiable, Sendable {
         self.title = title
         self.artist = "Unknown"
         self.artwork = nil
+        self.playbackDuration = nil
         self.original = original
     }
     
