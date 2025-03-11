@@ -30,7 +30,8 @@ public protocol MediaPlayerServiceable {
     
     /// 모델에서 배열을 관리하기 위해 프레임워크에서 제공하는 임의 재생 기능(shuffleMode)을 사용하지 않고
     /// replaceQueue 조합하여 사용함.
-    func shuffle(items: [MediaItem]) async
+    func shuffleMode() async -> ShuffleMode
+    func shufflePlay(with mode: ShuffleMode) async
     func play(_ selectedItem: MediaItem, in items: [MediaItem]) async
     func nowPlayingItem() async -> MediaItem?
     func playbackTime() async -> TimeInterval

@@ -14,6 +14,7 @@ public struct MediaItem: Identifiable, Sendable {
     public let artist: String
     public let artwork: Image?
     public let playbackDuration: TimeInterval?
+    public var isPlaying: Bool = false
     public let original: MPMediaItem
     
     

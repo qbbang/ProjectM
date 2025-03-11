@@ -40,7 +40,7 @@ extension RepeatMode {
             self = .all
         case .none:
             self = .none
-            /// Switch covers known cases, but 'MPMusicRepeatMode' may have additional unknown values, possibly added in future versions; this is an error in the Swift 6 language mode
+        /// Switch covers known cases, but 'MPMusicRepeatMode' may have additional unknown values, possibly added in future versions; this is an error in the Swift 6 language mode
         @unknown default:
             self = .none
         }

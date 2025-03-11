@@ -8,14 +8,13 @@
 import MediaPlayer
 
 /**
-SwiftUI에서 의존성 주입(DI)은 보통 EnvironmentObject를 통해 이루어지는데, ObservableObject를 채택해야함.
-하지만 MediaPlayerService는 동시성 보장을 위해 actor로 선언되어 있고, ObservableObject를 채택할 수 없음
-인스턴스 넘기는 구조에서 개선을 고민하다가 해당 이슈에 따라 싱글톤 패턴(MediaPlayerService.shared)으로 변경함.
-향후 명시적 의존성을 위해 모듈 구조를 재검토할 수 있음.
-  ex) 모듈을 사용하는 프로젝트에서 클래스로 감싸서 사용하거나 등등
+ SwiftUI에서 의존성 주입(DI)은 보통 EnvironmentObject를 통해 이루어지는데, ObservableObject를 채택해야함.
+ 하지만 MediaPlayerService는 동시성 보장을 위해 actor로 선언되어 있고, ObservableObject를 채택할 수 없음
+ 인스턴스 넘기는 구조에서 개선을 고민하다가 해당 이슈에 따라 싱글톤 패턴(MediaPlayerService.shared)으로 변경함.
+ 향후 명시적 의존성을 위해 모듈 구조를 재검토할 수 있음.
+ ex) 모듈을 사용하는 프로젝트에서 클래스로 감싸서 사용하거나 등등
  */
 public final actor MediaPlayerService: MediaPlayerServiceable {
-    
     public static let shared = MediaPlayerService()
     
     private init() { }
@@ -100,6 +99,15 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
     public func restart() async {
         await musicPlayer.skipToBeginning()
         await musicPlayer.stop()
+    }
+    
+    public func shuffleMode() async -> ShuffleMode {
+        await ShuffleMode(mpMusicShuffleMode: musicPlayer.shuffleMode)
+    }
+    
+    public func shufflePlay(with mode: ShuffleMode) async {
+        await musicPlayer.shuffleMode = mode.toMPMusicShuffleMode()
+        await musicPlayer.play()
     }
     
     public func shuffle(items: [MediaItem]) async {

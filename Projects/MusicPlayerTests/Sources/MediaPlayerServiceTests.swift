@@ -148,6 +148,18 @@ struct MediaPlayerServiceTests {
         #expect(secondIndexRow == 0, "첫번째 곡이 아닙니다.")
     }
     
+    @Test
+    func shuffle() async {
+        await setPlayList()
+        await mediaPlayerService.play()
+        let nowPlayingItem = await mediaPlayerService.nowPlayingItem()
+        
+        await mediaPlayerService.shufflePlay(with: .songs)
+        let shufflePlayingItem = await mediaPlayerService.nowPlayingItem()
+        
+        #expect(nowPlayingItem?.id == shufflePlayingItem?.id, "셔플된 곡이 같습니다.")
+    }
+    
     private func setPlayList() async {
         let items = await mediaPlayerService.fetchMediaQuery(for: .songs())
         let modifierItems = items.map { MediaItem(from: $0)}
