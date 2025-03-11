@@ -43,8 +43,6 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
                 continuation.resume(returning: authorizationStatus)
             }
         }
-        
-        
     }
     
     public func fetchAlbumDisplayItems() async -> [MediaItemCollection] {
@@ -133,7 +131,9 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
             return nil
         }
         
-        return MediaItem(from: nowPlayingItem)
+        /// 내부에서 +1 처리함.
+        let index = await musicPlayer.indexOfNowPlayingItem
+        return MediaItem(from: nowPlayingItem, position: index)
     }
     
     public func playbackTime() async -> TimeInterval {
