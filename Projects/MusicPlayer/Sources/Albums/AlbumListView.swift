@@ -7,8 +7,10 @@
 
 import SwiftUI
 import MediaPlayerService
+import MiniPlayer
 
 struct AlbumListView: View {
+    @EnvironmentObject var miniPlayerData: MiniPlayerData
     @StateObject var data: AlbumListData
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -24,12 +26,7 @@ struct AlbumListView: View {
     // MARK: Private
     @ViewBuilder
     private var contentsView: some View {
-        if data.albums.isEmpty {
-            ProgressView("Loading...")
-                .frame(width: 150, height: 150)
-        } else {
-            gridView
-        }
+        gridView
     }
     
     private var gridView: some View {
@@ -37,15 +34,17 @@ struct AlbumListView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(data.albums) { album in
-                        let data = AlbumDetailData(mediaPlayerService: data.mediaPlayerService, album: album)
-                        NavigationLink(destination: AlbumDetailView(data: data)) {
+                        NavigationLink(destination: AlbumDetailView(album: album)) {
                             AlbumView(album: album, geometry: geometry)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
                 }
-                .padding()
+                .padding(.horizontal, 8)
+                .padding(.top, 16)
+                .padding(.bottom, miniPlayerData.miniPlayerHeight + 16)
             }
+            
         }
     }
     
@@ -62,5 +61,7 @@ struct AlbumListView: View {
 }
 
 #Preview {
+    let miniPlayerData = MiniPlayerData()
     AlbumListView(data: .mock())
+        .environmentObject(miniPlayerData)
 }

@@ -10,7 +10,6 @@ import MediaPlayerService
 
 @main
 struct MusicPlayerApp: App {
-    private var mediaPlayerService = MediaPlayerService()
     private let navBarAppearence = UINavigationBarAppearance()
     
     init() {
@@ -19,11 +18,7 @@ struct MusicPlayerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            let data = AlbumListData(mediaPlayerService: mediaPlayerService)
-            AlbumListView(data: data)
-                .task {
-                    await data.fetchMediaItems()
-                }
+            RootView()
         }
     }
     
@@ -38,3 +33,4 @@ struct MusicPlayerApp: App {
         appearance.compactScrollEdgeAppearance = navigationBarAppearance
     }
 }
+

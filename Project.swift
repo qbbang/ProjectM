@@ -2,16 +2,22 @@
 import ProjectDescription
 
 extension SettingValue {
-    static let marketingVersion: SettingValue = "0.0.0"
+    static let marketingVersion: SettingValue = "1.0.0"
     static let projectVersion: SettingValue = "0"
 }
 
 let plist: [String : Plist.Value] = [
-    "UILaunchStoryboardName": "LaunchScreen",
+    "UILaunchScreen": [
+        "UIImageName": "LaunchImage",
+        "UIImageRespectsSafeAreaInsets": true
+    ],
     "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
     "UIUserInterfaceStyle": "Light",
     "UIBackgroundModes": ["audio"],
-    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다."
+    "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다.",
+    "NSVolumeUsageDescription": "음악 재생을 위해 기기 볼륨을 제어해야 합니다.",
+    "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+    "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)"
 ]
 
 let project = Project(
@@ -25,6 +31,7 @@ let project = Project(
             deploymentTargets: .iOS("15.0"),
             infoPlist: .extendingDefault(with: plist),
             sources: ["Projects/MusicPlayer/Sources/**"],
+            resources: ["Projects/MusicPlayer/Resources/**"],
             dependencies: [
                 .project(target: "MediaPlayerService", path: .relativeToRoot("Modules/MediaPlayerService")),
                 .project(target: "MiniPlayer",   path: .relativeToRoot("Modules/MiniPlayer"))

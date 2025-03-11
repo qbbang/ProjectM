@@ -7,12 +7,18 @@
 
 import SwiftUI
 import MediaPlayerService
+import MiniPlayer
 
 struct AlbumDetailView: View {
-    // TODO: matchedGeometryEffect 활용한 셔플 애니메이션 다시 할 것
-    // @Namespace private var animation
+    @Namespace private var animation
     @Environment(\.scenePhase) var scenePhase
-    @ObservedObject var data: AlbumDetailData
+    @EnvironmentObject var miniPlayerData: MiniPlayerData
+    @StateObject var data: AlbumDetailData
+    
+    /// https://developer.apple.com/documentation/swiftui/stateobject?utm_source=chatgpt.com#Initialize-state-objects-using-external-data
+    init(album: MediaItemCollection) {
+        _data = StateObject(wrappedValue: AlbumDetailData(album: album))
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -20,7 +26,9 @@ struct AlbumDetailView: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .task {
-            await data.updatePlaybackState()
+            await miniPlayerData.updateAlbum(data.album)
+            let mediaItem = await miniPlayerData.sync()
+            await data.sync(mediaItem: mediaItem)
         }
     }
     
@@ -31,7 +39,7 @@ struct AlbumDetailView: View {
             albumInfoView
         }
         Spacer(minLength: 16)
-        mediaItemListView
+        mediaItemContentView
     }
     
     @ViewBuilder
@@ -46,7 +54,10 @@ struct AlbumDetailView: View {
         actionButtons
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .active {
-                    Task { await data.updatePlaybackState() }
+                    Task {
+                        let mediaItem = await miniPlayerData.sync()
+                        await data.sync(mediaItem: mediaItem)
+                    }
                 }
             }
     }
@@ -85,18 +96,30 @@ struct AlbumDetailView: View {
     
     private var actionButtons: some View {
         GeometryReader { geometry in
+            let isCurrentAlbumPlaying = miniPlayerData.isPlayingAlbum(data.album)
+            
             ActionButtonView(
                 width: (geometry.size.width / 2) - 4,
-                buttonImage: data.playbackState.buttonImage,
+                buttonImage: isCurrentAlbumPlaying ? "pause.fill" : "play.fill",
                 onPlayPauseToggle: {
-                    if data.playbackState.isPlaying {
-                        Task { await data.pause() }
+                    if isCurrentAlbumPlaying {
+                        Task {
+                            await data.pause()
+                            await miniPlayerData.sync()
+                        }
                     } else {
-                        Task { await data.play() }
+                        Task {
+                            await data.play()
+                            await miniPlayerData.sync()
+                        }
                     }
                 },
                 onShuffle: {
-                    Task { await data.shuffle() }
+                    Task {
+                        await data.shufflePlay()
+                        let mediaItem = await miniPlayerData.sync()
+                        await data.sync(mediaItem: mediaItem)
+                    }
                 }
             )
         }
@@ -105,9 +128,9 @@ struct AlbumDetailView: View {
         .padding(.vertical, 8)
     }
     
-    private var mediaItemListView: some View {
+    private var mediaItemContentView: some View {
         ScrollView {
-            mediaItemView
+            mediaItemListView
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -118,16 +141,18 @@ struct AlbumDetailView: View {
         )
     }
     
-    private var mediaItemView: some View {
+    private var mediaItemListView: some View {
         VStack(spacing: 16) {
             Spacer(minLength: 8)
-            
             ForEach(data.mediaItems, id: \.id) { mediaItem in
-                MediaItemTitleView(mediaItem: mediaItem)
+                MediaItemTitleView(namespace: animation, mediaItem: mediaItem)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .onTapGesture {
-                        Task { await data.play(mediaItem: mediaItem) }
+                        Task {
+                            await data.play(mediaItem: mediaItem)
+                            await miniPlayerData.sync()
+                        }
                     }
             }
         }
@@ -136,5 +161,19 @@ struct AlbumDetailView: View {
 }
 
 #Preview {
-    AlbumDetailView(data: .mock())
+    let items = [
+        MediaItem(
+            id: 231,
+            title: "title",
+            artist: "artist",
+            artwork: nil,
+            playbackDuration: 180,
+            isPlaying: true,
+            positionl: 0,
+            original: .init()
+        )
+    ]
+    let album = MediaItemCollection(title: "title", artist: "artist", artwork: nil, items: items)
+    AlbumDetailView(album: album)
+        .environmentObject(MiniPlayerData())
 }

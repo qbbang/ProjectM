@@ -23,7 +23,7 @@ public struct MediaItemCollection: Identifiable, Sendable {
         self.artist = collection.representativeItem?.artist ?? "Unknown"
         let uiImage = collection.representativeItem?.artwork?.image(at: CGSize(width: 400, height: 400))
         self.artwork = uiImage != nil ? Image(uiImage: uiImage!) : nil
-        self.items = collection.items.map { MediaItem(from: $0) }
+        self.items = collection.items.enumerated().map { MediaItem(from: $0.element, position: $0.offset + 1) }
         self.original = collection
     }
     
