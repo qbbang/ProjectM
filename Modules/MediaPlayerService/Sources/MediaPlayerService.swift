@@ -45,6 +45,14 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         }
     }
     
+    public func beginGeneratingPlaybackNotifications() async {
+        await musicPlayer.beginGeneratingPlaybackNotifications()
+    }
+    
+    public func endGeneratingPlaybackNotifications() async {
+        await musicPlayer.endGeneratingPlaybackNotifications()
+    }
+    
     public func fetchAlbumDisplayItems() async -> [MediaItemCollection] {
         let albums = MPMediaQuery.albums().collections ?? []
         return albums.map { MediaItemCollection(from: $0) }

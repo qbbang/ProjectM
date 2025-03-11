@@ -10,6 +10,9 @@ import MediaPlayer
 /// https://developer.apple.com/documentation/mediaplayer
 public protocol MediaPlayerServiceable {
     func requestAuthorization() async -> MediaPlayerAuthorizationStatus
+    func beginGeneratingPlaybackNotifications() async
+    func endGeneratingPlaybackNotifications() async
+    
     func fetchAlbumDisplayItems() async -> [MediaItemCollection]
     func fetchMediaQuery(for type: MPMediaQuery) async -> [MPMediaItem]
     func replaceQueue(items: [MediaItem]) async

@@ -21,8 +21,66 @@ public final class MiniPlayerData: ObservableObject {
     var artwork: Image? { nowPlayingItem?.artwork }
     
     public init() {
-        setupPlaybackObserver()
+        Task { await notificationObservers() }
     }
+    
+    /*
+     PlaybackState 노티 이후 playbackState() async -> MPMusicPlaybackState 으로 재생/정지 상태를 췍
+     NowPlayingItemDidChange 노티 이후 nowPlayingItem() async -> MediaItem? 으로 현재 곡 췍
+     
+     MPMusicPlayerControllerPlaybackStateDidChange
+     MPMusicPlayerControllerNowPlayingItemDidChange
+     MPMediaLibraryDidChange
+     MPMusicPlayerControllerQueueDidChange
+     */
+    private func notificationObservers() async {
+        await MediaPlayerService.shared.beginGeneratingPlaybackNotifications()
+        
+        /// 음악 재생 후 진입 시
+        /// VolumeDidChange -> VolumeDidChange
+        ///
+        /// 음악 재생 중 -> 음악 정지
+        /// PlaybackStateDidChange -> PlaybackStateDidChange -> PlaybackStateDidChange
+        ///
+        /// 음악 재생 중 -> 셔플
+        /// PlaybackStateDidChange -> NowPlayingItemDidChange -> QueueDidChange -> NowPlayingItemDidChange -> PlaybackStateDidChange
+        NotificationCenter.default
+            .publisher(for: .MPMusicPlayerControllerPlaybackStateDidChange)
+            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+            .sink { [weak self] info in
+                Task {
+                    let playbackState = await MediaPlayerService.shared.playbackState()
+                    self?.playbackStatus = playbackState == .playing ? .playing : .paused
+                }
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default
+            .publisher(for: .MPMusicPlayerControllerNowPlayingItemDidChange)
+            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+            .sink { [weak self] info in
+                Task {
+                    let nowPlayingItem = await MediaPlayerService.shared.nowPlayingItem()
+                    let playbackTime = await MediaPlayerService.shared.playbackTime()
+                    
+                    self?.nowPlayingItem = nowPlayingItem
+                    self?.nowPlayTime = playbackTime
+                }
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default
+            .publisher(for: .MPMusicPlayerControllerQueueDidChange)
+            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+            .sink { [weak self] info in
+                Task {
+                    let repeatMode = await MediaPlayerService.shared.repeatMode()
+                    self?.repeatMode = repeatMode
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
     
     private func startTimer() {
         stopTimer()
@@ -42,54 +100,24 @@ public final class MiniPlayerData: ObservableObject {
         timer = nil
     }
     
-    private func setupPlaybackObserver() {
-        $playbackStatus
-            .sink { [weak self] status in
-                if status == .playing {
-                    self?.startTimer()
-                } else {
-                    self?.stopTimer()
-                }
-            }
-            .store(in: &cancellables)
-    }
-    
-    @discardableResult
-    public func sync() async -> MediaItem? {
-        let nowPlayingItem = await MediaPlayerService.shared.nowPlayingItem()
-        let playbackState = await MediaPlayerService.shared.playbackState()
-        let playTime = await MediaPlayerService.shared.playbackTime()
-        let repeatMode = await MediaPlayerService.shared.repeatMode()
-        
-        self.nowPlayingItem = nowPlayingItem
-        self.playbackStatus = playbackState == .playing ? .playing : .paused
-        self.nowPlayTime = playTime
-        self.repeatMode = repeatMode
-        return nowPlayingItem
-    }
-    
     public func togglePlayback() async {
         if playbackStatus == .playing {
             await MediaPlayerService.shared.pause()
         } else {
             await MediaPlayerService.shared.play()
         }
-        await sync()
     }
     
     public func skipToNextItem() async {
         await MediaPlayerService.shared.skipToNextItem()
-        await sync()
     }
     
     public func skipToPreviousItem() async {
         await MediaPlayerService.shared.skipToPreviousItem()
-        await sync()
     }
     
     public func seek(to time: TimeInterval) async {
         await MediaPlayerService.shared.seek(to: time)
-        await sync()
     }
     
     public func repeatMode() async {
@@ -102,14 +130,12 @@ public final class MiniPlayerData: ObservableObject {
         }
         await MediaPlayerService.shared.repeatMode(nextRepeatMode)
         self.repeatMode = nextRepeatMode
-        await sync()
     }
     
     public func shufflePlay() async {
         let items = self.album?.items ?? []
         await MediaPlayerService.shared.replaceQueue(items: items)
         await MediaPlayerService.shared.shufflePlay(with: .albums)
-        await sync()
     }
     
     public func requestAuthorization() async -> MediaPlayerAuthorizationStatus {

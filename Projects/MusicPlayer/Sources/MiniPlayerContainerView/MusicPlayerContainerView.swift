@@ -22,9 +22,6 @@ struct MusicPlayerContainerView<Content: View>: View {
                     MiniPlayerView()
                         .environmentObject(miniPlayerData)
                         .frame(height: miniPlayerData.miniPlayerHeight)
-                        .task {
-                            await miniPlayerData.sync()
-                        }
                         .transition(.opacity)
                 }
             }

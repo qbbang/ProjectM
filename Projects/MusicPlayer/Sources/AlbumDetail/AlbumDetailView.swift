@@ -27,8 +27,9 @@ struct AlbumDetailView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .task {
             await miniPlayerData.updateAlbum(data.album)
-            let mediaItem = await miniPlayerData.sync()
-            await data.sync(mediaItem: mediaItem)
+            // TODO: 검증 필요
+            // let mediaItem = await miniPlayerData.sync()
+            // await data.sync(mediaItem: mediaItem)
         }
     }
     
@@ -54,10 +55,11 @@ struct AlbumDetailView: View {
         actionButtons
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .active {
-                    Task {
-                        let mediaItem = await miniPlayerData.sync()
-                        await data.sync(mediaItem: mediaItem)
-                    }
+                    // TODO: 검증 필요 (백 -> 포그라운드)
+//                    Task {
+//                        let mediaItem = await miniPlayerData.sync()
+//                        await data.sync(mediaItem: mediaItem)
+//                    }
                 }
             }
     }
@@ -105,20 +107,23 @@ struct AlbumDetailView: View {
                     if isCurrentAlbumPlaying {
                         Task {
                             await data.pause()
-                            await miniPlayerData.sync()
+                            // TODO: 검증 필요
+                            // await miniPlayerData.sync()
                         }
                     } else {
                         Task {
                             await data.play()
-                            await miniPlayerData.sync()
+                            // TODO: 검증 필요
+                            // await miniPlayerData.sync()
                         }
                     }
                 },
                 onShuffle: {
                     Task {
                         await data.shufflePlay()
-                        let mediaItem = await miniPlayerData.sync()
-                        await data.sync(mediaItem: mediaItem)
+                        // TODO: 검증 필요
+//                        let mediaItem = await miniPlayerData.sync()
+//                        await data.sync(mediaItem: mediaItem)
                     }
                 }
             )
@@ -151,7 +156,8 @@ struct AlbumDetailView: View {
                     .onTapGesture {
                         Task {
                             await data.play(mediaItem: mediaItem)
-                            await miniPlayerData.sync()
+                            // TODO: 검증 필요
+//                            await miniPlayerData.sync()
                         }
                     }
             }
