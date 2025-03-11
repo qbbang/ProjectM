@@ -26,8 +26,7 @@ struct AlbumDetailView: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .task {
-            await miniPlayerData.updateAlbum(data.album)
-            let mediaItem = await miniPlayerData.sync()
+            let mediaItem = miniPlayerData.nowPlayingItem
             await data.sync(mediaItem: mediaItem)
         }
     }
@@ -55,7 +54,7 @@ struct AlbumDetailView: View {
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .active {
                     Task {
-                        let mediaItem = await miniPlayerData.sync()
+                        let mediaItem = miniPlayerData.nowPlayingItem
                         await data.sync(mediaItem: mediaItem)
                     }
                 }
@@ -103,22 +102,19 @@ struct AlbumDetailView: View {
                 buttonImage: isCurrentAlbumPlaying ? "pause.fill" : "play.fill",
                 onPlayPauseToggle: {
                     if isCurrentAlbumPlaying {
-                        Task {
-                            await data.pause()
-                            await miniPlayerData.sync()
-                        }
+                        await data.pause()
                     } else {
-                        Task {
-                            await data.play()
-                            await miniPlayerData.sync()
-                        }
+                        await data.play()
                     }
                 },
                 onShuffle: {
-                    Task {
-                        await data.shufflePlay()
-                        let mediaItem = await miniPlayerData.sync()
-                        await data.sync(mediaItem: mediaItem)
+                    await data.shufflePlay()
+                    let nowPlayingItem = miniPlayerData.nowPlayingItem
+                    for await item in miniPlayerData.nowPlayingItemStream {
+                        if nowPlayingItem?.id != item?.id {
+                            await data.sync(mediaItem: item)
+                            break
+                        }
                     }
                 }
             )
@@ -149,14 +145,14 @@ struct AlbumDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .onTapGesture {
-                        Task {
-                            await data.play(mediaItem: mediaItem)
-                            await miniPlayerData.sync()
-                        }
+                        Task { await data.play(mediaItem: mediaItem) }
                     }
             }
         }
         .padding()
+        .onChange(of: miniPlayerData.nowPlayingItem) { newItem in
+            Task { await data.sync(mediaItem: newItem) }
+        }
     }
 }
 
