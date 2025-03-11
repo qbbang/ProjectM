@@ -21,11 +21,9 @@ struct MiniPlayerDetailView: View {
             MiniPlayerDetailControlView()
                 .environmentObject(miniPlayerData)
                 .padding()
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.opacity(0.9))
-        
     }
     
     var infoView: some View {
@@ -53,7 +51,6 @@ struct MiniPlayerDetailView: View {
                 .cornerRadius(8)
         }
     }
-    
 }
 
 #Preview {

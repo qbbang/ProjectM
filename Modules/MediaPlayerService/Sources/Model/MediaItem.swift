@@ -8,7 +8,7 @@
 import SwiftUI
 @preconcurrency import MediaPlayer
 
-public struct MediaItem: Identifiable, Sendable {
+public struct MediaItem: Identifiable, Sendable, Equatable {
     public let id: MPMediaEntityPersistentID
     public let title: String
     public let artist: String

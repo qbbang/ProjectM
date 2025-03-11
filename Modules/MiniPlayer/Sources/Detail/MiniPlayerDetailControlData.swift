@@ -13,6 +13,7 @@ import MediaPlayer
 class MiniPlayerControlData: ObservableObject {
     @Published var sliderValue: Double = 0
     @Published var isDragging: Bool = false
+    @Published var isSeeking: Bool = false
     @Published var volume: Float = AVAudioSession.sharedInstance().outputVolume
     
     private var cancellables = Set<AnyCancellable>()

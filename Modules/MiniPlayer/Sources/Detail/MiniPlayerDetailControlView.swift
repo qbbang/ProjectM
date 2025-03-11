@@ -20,6 +20,9 @@ struct MiniPlayerDetailControlView: View {
         .onAppear {
             controlData.sliderValue = miniPlayerData.nowPlayTime
         }
+        .onChange(of: miniPlayerData.nowPlayingItem) { _ in
+            controlData.sliderValue = miniPlayerData.nowPlayTime
+        }
     }
     
     private var controlView: some View {
@@ -53,7 +56,7 @@ struct MiniPlayerDetailControlView: View {
         VStack {
             Slider(
                 value: Binding(
-                    get: { controlData.isDragging ? controlData.sliderValue : miniPlayerData.nowPlayTime },
+                    get: { controlData.sliderValue },
                     set: { controlData.sliderValue = $0 }
                 ),
                 in: 0...max(1, total),
@@ -61,7 +64,14 @@ struct MiniPlayerDetailControlView: View {
             ) { editing in
                 controlData.isDragging = editing
                 if !editing {
-                    Task { await miniPlayerData.seek(to: controlData.sliderValue) }
+                    controlData.isSeeking = true
+                    Task {
+                        await miniPlayerData.seek(to: controlData.sliderValue)
+                        await MainActor.run {
+                            controlData.isSeeking = false
+                            controlData.sliderValue = miniPlayerData.nowPlayTime
+                        }
+                    }
                 }
             }
             .accentColor(.white)
@@ -74,6 +84,11 @@ struct MiniPlayerDetailControlView: View {
                 Text("- \(formattedTime(timeInSeconds: max(0, total - controlData.sliderValue)))")
                     .font(.caption)
                     .foregroundColor(.white)
+            }
+        }
+        .onReceive(miniPlayerData.$nowPlayTime) { newTime in
+            if !controlData.isDragging && !controlData.isSeeking {
+                controlData.sliderValue = newTime
             }
         }
     }

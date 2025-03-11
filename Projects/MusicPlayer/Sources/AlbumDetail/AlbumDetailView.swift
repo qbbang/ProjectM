@@ -148,8 +148,6 @@ struct AlbumDetailView: View {
                     .onTapGesture {
                         Task {
                             await data.play(mediaItem: mediaItem)
-                            // TODO: 검증 필요
-                            //                            await miniPlayerData.sync()
                         }
                     }
             }

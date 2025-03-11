@@ -9,7 +9,6 @@ public final class MiniPlayerData: ObservableObject {
     @Published public private(set) var playbackStatus: PlaybackStatus = .paused
     @Published public private(set) var nowPlayingItem: MediaItem? = nil
     @Published public private(set) var nowPlayTime: TimeInterval = 0
-    @Published public private(set) var nowPlayDuration: TimeInterval = 0
     @Published public private(set) var repeatMode: RepeatMode = .none
     
     private var timer: Timer?
@@ -23,12 +22,8 @@ public final class MiniPlayerData: ObservableObject {
     public init() {
         Task { await notificationObservers() }
     }
-    
-    
     // MARK: - Funtions
     // MARK: Public
-    
-    /// AlbumList 생성 시 데이터 주입 -> initData?!
     public func fetched(_ albumList: [MediaItemCollection]) async {
         self.albumList = albumList
         
@@ -84,6 +79,14 @@ public final class MiniPlayerData: ObservableObject {
                 Task {
                     let playbackState = await MediaPlayerService.shared.playbackState()
                     self?.playbackStatus = playbackState == .playing ? .playing : .paused
+                    
+                    await MainActor.run {
+                        if self?.playbackStatus == .playing {
+                            self?.startTimer()
+                        } else {
+                            self?.stopTimer()
+                        }
+                    }
                     print("✅ playbackStatus: ", playbackState)
                 }
             }
@@ -97,8 +100,10 @@ public final class MiniPlayerData: ObservableObject {
                     let nowPlayingItem = await MediaPlayerService.shared.nowPlayingItem()
                     let playbackTime = await MediaPlayerService.shared.playbackTime()
                     
-                    self?.nowPlayingItem = nowPlayingItem
-                    self?.nowPlayTime = playbackTime
+                    await MainActor.run {
+                        self?.nowPlayingItem = nowPlayingItem
+                        self?.nowPlayTime = playbackTime
+                    }
                     print("✅ nowPlayingItem: ", nowPlayingItem)
                     print("✅ nowPlayTime: ", playbackTime)
                 }
@@ -111,7 +116,10 @@ public final class MiniPlayerData: ObservableObject {
             .sink { [weak self] info in
                 Task {
                     let repeatMode = await MediaPlayerService.shared.repeatMode()
-                    self?.repeatMode = repeatMode
+                    
+                    await MainActor.run {
+                        self?.repeatMode = repeatMode
+                    }
                     
                     print("✅ repeatMode: ", repeatMode)
                 }
@@ -155,6 +163,7 @@ public final class MiniPlayerData: ObservableObject {
     
     public func seek(to time: TimeInterval) async {
         await MediaPlayerService.shared.seek(to: time)
+        self.nowPlayTime = time
     }
     
     public func repeatMode() async {
@@ -170,7 +179,6 @@ public final class MiniPlayerData: ObservableObject {
     }
     
     public func shufflePlay() async {
-        // TODO: 로직 변경으로 인한 수정 포인트
         let playingAlbum = self.albumList.first {
             $0.original.representativeItem?.albumPersistentID == self.nowPlayingItem?.original.albumPersistentID
         }
