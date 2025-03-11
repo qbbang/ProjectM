@@ -28,7 +28,10 @@ final class AlbumDetailData: ObservableObject {
         guard let mediaItem else { return }
         withAnimation(.smooth) {
             for index in mediaItems.indices {
+                print("\n\n \(mediaItems[index].id) || \(mediaItem.id)")
+                print("✅ \(mediaItems[index].title) ", mediaItems[index].isPlaying)
                 mediaItems[index].isPlaying = (mediaItems[index].id == mediaItem.id)
+                print("\n\n")
             }
         }
     }

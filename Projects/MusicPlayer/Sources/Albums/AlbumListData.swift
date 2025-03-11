@@ -12,8 +12,10 @@ final class AlbumListData: ObservableObject {
     @Published var albums: [MediaItemCollection] = []
     
     @MainActor
-    func fetchAlbumList() async {
+    @discardableResult
+    func fetchAlbumList() async -> [MediaItemCollection] {
         self.albums = await MediaPlayerService.shared.fetchAlbumDisplayItems()
+        return self.albums
     }
 }
 

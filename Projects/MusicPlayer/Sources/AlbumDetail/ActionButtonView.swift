@@ -11,13 +11,13 @@ struct ActionButtonView: View {
     let width: CGFloat
     var buttonImage: String
     
-    var onPlayPauseToggle: () -> Void
-    var onShuffle: () -> Void
+    var onPlayPauseToggle: () async -> Void
+    var onShuffle: () async -> Void
     
     var body: some View {
         HStack(spacing: 8) {
             Button(action: {
-                onPlayPauseToggle()
+                Task { await onPlayPauseToggle() }
             }) {
                 Image(systemName: buttonImage)
                     .resizable()
@@ -29,7 +29,7 @@ struct ActionButtonView: View {
             .cornerRadius(16)
             
             Button(action: {
-                onShuffle()
+                Task { await onShuffle() }
             }) {
                 Image(systemName: "shuffle")
                     .resizable()

@@ -47,8 +47,8 @@ struct RootView: View {
     private var mainView: some View {
         let data = AlbumListData()
         let albumListView = AlbumListView(data: data).task {
-            await data.fetchAlbumList()
-            await miniPlayerData.fetchedAlbumList()
+            let albumList = await data.fetchAlbumList()
+            await miniPlayerData.fetched(albumList)
         }
         
         MusicPlayerContainerView(content: albumListView)

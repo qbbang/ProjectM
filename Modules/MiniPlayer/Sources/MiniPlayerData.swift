@@ -14,7 +14,7 @@ public final class MiniPlayerData: ObservableObject {
     
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
-    private var album: MediaItemCollection?
+    private var albumList = [MediaItemCollection]()
     
     var title: String { nowPlayingItem?.title ?? "재생 중인 곡이 없습니다." }
     var artistName: String { nowPlayingItem?.artist ?? "Unknown Artist" }
@@ -22,6 +22,39 @@ public final class MiniPlayerData: ObservableObject {
     
     public init() {
         Task { await notificationObservers() }
+    }
+    
+    
+    // MARK: - Funtions
+    // MARK: Public
+    
+    /// AlbumList 생성 시 데이터 주입 -> initData?!
+    public func fetched(_ albumList: [MediaItemCollection]) async {
+        self.albumList = albumList
+        
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await self.updateNowPlayingItem() }
+            group.addTask { await self.updatePlaybackState() }
+            group.addTask { await self.updateQueueDidChange() }
+        }
+        
+        isMediaItemsFetched = true
+    }
+    
+    // MARK: Private
+    private func updateNowPlayingItem() async {
+        self.nowPlayingItem = await MediaPlayerService.shared.nowPlayingItem()
+        self.nowPlayTime = await MediaPlayerService.shared.playbackTime()
+    }
+     
+    private func updatePlaybackState() async {
+        let playbackStatus = await MediaPlayerService.shared.playbackState()
+        self.playbackStatus = playbackStatus == .playing ? .playing : .paused
+    }
+    
+    /// 시스템 임의 재생 playbackStatus -> repeatMode:  none -> nowPlayingItem
+    private func updateQueueDidChange() async {
+        self.nowPlayingItem = await MediaPlayerService.shared.nowPlayingItem()
     }
     
     /*
@@ -51,6 +84,7 @@ public final class MiniPlayerData: ObservableObject {
                 Task {
                     let playbackState = await MediaPlayerService.shared.playbackState()
                     self?.playbackStatus = playbackState == .playing ? .playing : .paused
+                    print("✅ playbackStatus: ", playbackState)
                 }
             }
             .store(in: &cancellables)
@@ -65,6 +99,8 @@ public final class MiniPlayerData: ObservableObject {
                     
                     self?.nowPlayingItem = nowPlayingItem
                     self?.nowPlayTime = playbackTime
+                    print("✅ nowPlayingItem: ", nowPlayingItem)
+                    print("✅ nowPlayTime: ", playbackTime)
                 }
             }
             .store(in: &cancellables)
@@ -76,11 +112,12 @@ public final class MiniPlayerData: ObservableObject {
                 Task {
                     let repeatMode = await MediaPlayerService.shared.repeatMode()
                     self?.repeatMode = repeatMode
+                    
+                    print("✅ repeatMode: ", repeatMode)
                 }
             }
             .store(in: &cancellables)
     }
-    
     
     private func startTimer() {
         stopTimer()
@@ -133,21 +170,17 @@ public final class MiniPlayerData: ObservableObject {
     }
     
     public func shufflePlay() async {
-        let items = self.album?.items ?? []
+        // TODO: 로직 변경으로 인한 수정 포인트
+        let playingAlbum = self.albumList.first {
+            $0.original.representativeItem?.albumPersistentID == self.nowPlayingItem?.original.albumPersistentID
+        }
+        let items = playingAlbum?.items ?? []
         await MediaPlayerService.shared.replaceQueue(items: items)
         await MediaPlayerService.shared.shufflePlay(with: .albums)
     }
     
     public func requestAuthorization() async -> MediaPlayerAuthorizationStatus {
         await MediaPlayerService.shared.requestAuthorization()
-    }
-    
-    public func fetchedAlbumList() async {
-        isMediaItemsFetched = true
-    }
-    
-    public func updateAlbum(_ album: MediaItemCollection) async {
-        self.album = album
     }
     
     public func isPlayingAlbum(_ album: MediaItemCollection) -> Bool {
