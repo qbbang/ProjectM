@@ -34,8 +34,7 @@ struct AlbumListView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(data.albums) { album in
-                        let data = AlbumDetailData(album: album)
-                        NavigationLink(destination: AlbumDetailView(data: data)) {
+                        NavigationLink(destination: AlbumDetailView(album: album)) {
                             AlbumView(album: album, geometry: geometry)
                         }
                         .buttonStyle(PlainButtonStyle())

@@ -24,9 +24,26 @@ final class AlbumDetailData: ObservableObject {
     // MARK: - Action
     // MARK: - Public
     @MainActor
+    func sync(mediaItem: MediaItem?) async {
+        guard let mediaItem else { return }
+        withAnimation(.smooth) {
+            for index in mediaItems.indices {
+                mediaItems[index].isPlaying = (mediaItems[index].id == mediaItem.id)
+            }
+        }
+    }
+    
+    @MainActor
     func play() async {
         await MediaPlayerService.shared.replaceQueue(items: mediaItems)
         await MediaPlayerService.shared.play()
+        let playItemIndex = await MediaPlayerService.shared.indexOfNowPlayingItem()
+        
+        withAnimation(.smooth) {
+            for index in mediaItems.indices {
+                mediaItems[index].isPlaying = playItemIndex == index ? true : false
+            }
+        }
     }
     
     @MainActor
@@ -35,17 +52,21 @@ final class AlbumDetailData: ObservableObject {
     }
     
     @MainActor
-    func shuffle() async {
-        var shuffleMediaItems = mediaItems
-        shuffleMediaItems.shuffle()
-        mediaItems = shuffleMediaItems
-        await MediaPlayerService.shared.shuffle(items: shuffleMediaItems)
+    func shufflePlay() async {
+        await MediaPlayerService.shared.replaceQueue(items: mediaItems)
+        await MediaPlayerService.shared.shufflePlay(with: .albums)
     }
     
     @MainActor
     func play(mediaItem: MediaItem) async {
+        withAnimation(.smooth) {
+            for index in mediaItems.indices {
+                mediaItems[index].isPlaying = (mediaItems[index].id == mediaItem.id)
+            }
+        }
+        
         await MediaPlayerService.shared.play(mediaItem, in: mediaItems)
-    }    
+    }
 }
 
 extension AlbumDetailData {
@@ -57,28 +78,13 @@ extension AlbumDetailData {
                 artwork: nil,
                 items: [
                     MediaItem(
-                        id: 123,
-                        title: "내가 제일 잘 나가",
-                        original: .init()
-                    ),
-                    MediaItem(
-                        id: 234,
-                        title: "밤바라빠 빠빠빠빠빠빠 ",
-                        original: .init()
-                    ),
-                    MediaItem(
-                        id: 345,
-                        title: "누가 봐도 내가 좀 죽여주잖아",
-                        original: .init()
-                    ),
-                    MediaItem(
-                        id: 456,
-                        title: "타이틀",
-                        original: .init()
-                    ),
-                    MediaItem(
-                        id: 567,
-                        title: "무제",
+                        id: 1,
+                        title: "밤바라빠 빠빠빠빠빠빠",
+                        artist: "2NE1",
+                        artwork: nil,
+                        playbackDuration: 230,
+                        isPlaying: true,
+                        positionl: 1,
                         original: .init()
                     )
                 ]

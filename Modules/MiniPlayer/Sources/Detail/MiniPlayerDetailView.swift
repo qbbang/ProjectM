@@ -32,11 +32,11 @@ struct MiniPlayerDetailView: View {
         VStack(alignment: .center, spacing: 8) {
             Text(miniPlayerData.title)
                 .font(.subheadline.bold())
-                .foregroundColor(.black)
+                .foregroundColor(.white)
             
             Text(miniPlayerData.artistName)
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.white)
         }
     }
     

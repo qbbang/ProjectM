@@ -19,6 +19,7 @@ public final class MiniPlayerData: ObservableObject {
     @Published public private(set) var repeatMode: RepeatMode = .none
     
     private var timer: Timer?
+    private var album: MediaItemCollection?
     
     var title: String { nowPlayingItem?.title ?? "재생 중인 곡이 없습니다." }
     var artistName: String { nowPlayingItem?.artist ?? "Unknown Artist" }
@@ -32,7 +33,7 @@ public final class MiniPlayerData: ObservableObject {
         isMediaItemsFetched = true
     }
     
-    // MARK: Public(update miniPlayer)
+    // MARK: Public(miniPlayer Actions)
     @MainActor
     public func requestAuthorization() async ->  MediaPlayerAuthorizationStatus {
         await MediaPlayerService.shared.requestAuthorization()
@@ -40,7 +41,8 @@ public final class MiniPlayerData: ObservableObject {
     
     /// paused인 경우 nowPlayingItem가 nil 아님.
     @MainActor
-    public func sync() async {
+    @discardableResult
+    public func sync() async -> MediaItem? {
         let nowPlayingItem = await MediaPlayerService.shared.nowPlayingItem()
         let playbackState = await MediaPlayerService.shared.playbackState()
         let playTime = await MediaPlayerService.shared.playbackTime()
@@ -56,6 +58,8 @@ public final class MiniPlayerData: ObservableObject {
         } else {
             stopTimer()
         }
+        
+        return nowPlayingItem
     }
     
     @MainActor
@@ -102,6 +106,20 @@ public final class MiniPlayerData: ObservableObject {
         self.repeatMode = nextRepeatMode
     }
     
+    @MainActor
+    public func shufflePlay() async {
+        let items = self.album?.items ?? []
+        print("✅ items: ",items)
+        await MediaPlayerService.shared.replaceQueue(items: items)
+        await MediaPlayerService.shared.shufflePlay(with: .albums)
+        
+        // TODO: 업데이트해서 디테일에 반영해야함. 노티랑 해당 클래스로 모두 이관하면 처리될 문제
+    }
+    
+    public func updateAlbum(_ album: MediaItemCollection) async {
+        self.album = album
+    }
+    
     public func isPlayingAlbum(_ album: MediaItemCollection) -> Bool {
         guard let nowPlaying = nowPlayingItem else { return false }
         return playbackStatus == .playing &&
@@ -123,7 +141,7 @@ public final class MiniPlayerData: ObservableObject {
                     self.nowPlayDuration = nowPlayDuration - time
                 }
                 
-                if self.nowPlayDuration <= 1 {
+                if await self.nowPlayDuration <= 1 {
                     await self.endGeneratingPlayback()
                 }
             }
@@ -135,7 +153,7 @@ public final class MiniPlayerData: ObservableObject {
         timer = nil
     }
     
-    /// beginGeneratingPlaybackNotifications 대체
+    // TODO: beginGeneratingPlaybackNotifications 대체
     private func endGeneratingPlayback() async {
         stopTimer()
         await MediaPlayerService.shared.stop()

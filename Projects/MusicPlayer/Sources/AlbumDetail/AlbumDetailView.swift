@@ -11,10 +11,15 @@ import MiniPlayer
 
 struct AlbumDetailView: View {
     // TODO: matchedGeometryEffect 활용한 셔플 애니메이션 다시 할 것
-    // @Namespace private var animation
+    @Namespace private var animation
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var miniPlayerData: MiniPlayerData
     @StateObject var data: AlbumDetailData
+    
+    /// https://developer.apple.com/documentation/swiftui/stateobject?utm_source=chatgpt.com#Initialize-state-objects-using-external-data
+    init(album: MediaItemCollection) {
+        _data = StateObject(wrappedValue: AlbumDetailData(album: album))
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -22,7 +27,9 @@ struct AlbumDetailView: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .task {
-            await miniPlayerData.sync()
+            await miniPlayerData.updateAlbum(data.album)
+            let mediaItem = await miniPlayerData.sync()
+            await data.sync(mediaItem: mediaItem)
         }
     }
     
@@ -33,7 +40,7 @@ struct AlbumDetailView: View {
             albumInfoView
         }
         Spacer(minLength: 16)
-        mediaItemListView
+        mediaItemContentView
     }
     
     @ViewBuilder
@@ -48,7 +55,10 @@ struct AlbumDetailView: View {
         actionButtons
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .active {
-                    Task { await miniPlayerData.sync() }
+                    Task {
+                        let mediaItem = await miniPlayerData.sync()
+                        await data.sync(mediaItem: mediaItem)
+                    }
                 }
             }
     }
@@ -107,8 +117,9 @@ struct AlbumDetailView: View {
                 },
                 onShuffle: {
                     Task {
-                        await data.shuffle()
-                        await miniPlayerData.sync()
+                        await data.shufflePlay()
+                        let mediaItem = await miniPlayerData.sync()
+                        await data.sync(mediaItem: mediaItem)
                     }
                 }
             )
@@ -118,9 +129,9 @@ struct AlbumDetailView: View {
         .padding(.vertical, 8)
     }
     
-    private var mediaItemListView: some View {
+    private var mediaItemContentView: some View {
         ScrollView {
-            mediaItemView
+            mediaItemListView
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -131,12 +142,11 @@ struct AlbumDetailView: View {
         )
     }
     
-    private var mediaItemView: some View {
+    private var mediaItemListView: some View {
         VStack(spacing: 16) {
             Spacer(minLength: 8)
-            
             ForEach(data.mediaItems, id: \.id) { mediaItem in
-                MediaItemTitleView(mediaItem: mediaItem)
+                MediaItemTitleView(namespace: animation, mediaItem: mediaItem)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .onTapGesture {
@@ -151,6 +161,6 @@ struct AlbumDetailView: View {
     }
 }
 
-#Preview {
-    AlbumDetailView(data: .mock())
-}
+//#Preview {
+//    AlbumDetailView(data: .mock())
+//}

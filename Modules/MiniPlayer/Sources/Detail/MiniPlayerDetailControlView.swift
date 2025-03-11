@@ -38,7 +38,7 @@ struct MiniPlayerDetailControlView: View {
             }, imageName: "forward.fill")
             
             CustomButton(action: {
-                //await miniPlayerData.shuffle()
+                await miniPlayerData.shufflePlay()
             }, imageName: "shuffle")
             
             #if DEBUG
