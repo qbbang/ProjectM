@@ -6,12 +6,31 @@
 //
 
 import SwiftUI
+import MediaPlayerService
 
 @main
 struct MusicPlayerApp: App {
+    private let navBarAppearence = UINavigationBarAppearance()
+    
+    init() {
+        configureNavigationBarAppearance()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
+    
+    private func configureNavigationBarAppearance() {
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.backgroundColor = .systemOrange
+        
+        let appearance = UINavigationBar.appearance()
+        appearance.standardAppearance = navigationBarAppearance
+        appearance.scrollEdgeAppearance = navigationBarAppearance
+        appearance.compactAppearance = navigationBarAppearance
+        appearance.compactScrollEdgeAppearance = navigationBarAppearance
+    }
 }
+

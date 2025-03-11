@@ -1,19 +1,16 @@
 import ProjectDescription
 
 let project = Project(
-    name: "Component",
+    name: "MediaPlayerService",
     targets: [
         Target.target(
-            name: "Component",
+            name: "MediaPlayerService",
             destinations: [.iPhone],
             product: .framework,
-            bundleId: "com.jokerLee.Component",
+            bundleId: "com.jokerLee.MediaPlayerService",
             deploymentTargets: .iOS("15.0"),
             sources: ["Sources/**"],
             dependencies: []
         )
-    ],
-    additionalFiles: [
-        "Sources/Empty.swift"
     ]
 )
