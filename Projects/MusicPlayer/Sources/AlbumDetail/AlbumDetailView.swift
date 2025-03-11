@@ -53,7 +53,6 @@ struct AlbumDetailView: View {
         actionButtons
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .active {
-                    // TODO: 검증 필요 (백 -> 포그라운드)
                     Task {
                         let mediaItem = miniPlayerData.nowPlayingItem
                         await data.sync(mediaItem: mediaItem)
@@ -146,13 +145,14 @@ struct AlbumDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .onTapGesture {
-                        Task {
-                            await data.play(mediaItem: mediaItem)
-                        }
+                        Task { await data.play(mediaItem: mediaItem) }
                     }
             }
         }
         .padding()
+        .onChange(of: miniPlayerData.nowPlayingItem) { newItem in
+            Task { await data.sync(mediaItem: newItem) }
+        }
     }
 }
 
