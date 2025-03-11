@@ -15,7 +15,7 @@ struct MediaItemTitleView: View {
     var body: some View {
         ZStack {
             highlightView
-            testiew
+            titleView
         }
         
     }
@@ -30,7 +30,7 @@ struct MediaItemTitleView: View {
     }
     
     @ViewBuilder
-    private var testiew: some View  {
+    private var titleView: some View  {
         if mediaItem.isPlaying {
             Label(mediaItem.title, systemImage: "music.note")
                 .foregroundStyle(.white)
@@ -38,15 +38,12 @@ struct MediaItemTitleView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         } else {
             HStack {
-                //                let number =
                 Text("\(mediaItem.positionl)")
-                
                 Text(mediaItem.title)
                     .foregroundStyle(.black)
                     .font(.callout)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            
         }
     }
 }
@@ -63,6 +60,6 @@ struct MediaItemTitleView: View {
         positionl: 0,
         original: .init()
     )
-
+    
     MediaItemTitleView(namespace: animation, mediaItem: mediaItem)
 }

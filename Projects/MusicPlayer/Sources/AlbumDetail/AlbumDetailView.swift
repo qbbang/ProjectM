@@ -10,7 +10,6 @@ import MediaPlayerService
 import MiniPlayer
 
 struct AlbumDetailView: View {
-    // TODO: matchedGeometryEffect 활용한 셔플 애니메이션 다시 할 것
     @Namespace private var animation
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var miniPlayerData: MiniPlayerData
@@ -161,6 +160,20 @@ struct AlbumDetailView: View {
     }
 }
 
-//#Preview {
-//    AlbumDetailView(data: .mock())
-//}
+#Preview {
+    let items = [
+        MediaItem(
+            id: 231,
+            title: "title",
+            artist: "artist",
+            artwork: nil,
+            playbackDuration: 180,
+            isPlaying: true,
+            positionl: 0,
+            original: .init()
+        )
+    ]
+    let album = MediaItemCollection(title: "title", artist: "artist", artwork: nil, items: items)
+    AlbumDetailView(album: album)
+        .environmentObject(MiniPlayerData())
+}
