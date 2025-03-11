@@ -10,13 +10,56 @@ ProjectM은 SwiftUI를 기반으로 개발된 iOS 음악 플레이어 애플리�
  프로젝트는 음악 재생, 앨범 관리, 미니 플레이어 컨트롤 기능을 제공하며, 
 시스템 음악 앱과의 완벽한 호환성을 목표로 개발하였습니다.
 
-**기술 스택**
+## 기술 스택
 
 - SwiftUI: 선언적 UI 프레임워크를 활용하여 직관적이고 유연한 UI 구현.
 - Combine: 비동기 데이터 스트림 처리 및 노티피케이션 구독 관리.
 - Swift 6 동시성(async/await): 동시성 처리를 통해 안정적이고 효율적인 비동기 작업 지원.
 - MV Architecture: 뷰와 비즈니스 로직을 명확히 분리하여 테스트와 유지보수 용이성 확보.
 - Tuist: 프로젝트 관리 도구를 사용하여 모듈화된 구조를 효율적으로 관리.
+
+|    |   |
+|----------|----------|
+|          | ![image](https://github.com/user-attachments/assets/f53672fa-e929-42d6-93eb-f093fdcf10a2) |
+
+
+
+## 빌드 방법
+
+git clone https://github.com/qbbang/ProjectM.git
+./init.sh
+
+```
+/init.sh
+==> Tuist uninstalled
+Warning: tuist/tuist/tuist@4.43.2 4.43.2 is already installed and up-to-date.
+To reinstall 4.43.2, run:
+  brew reinstall tuist@4.43.2
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/Plugins
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/Projects
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/ProjectDescriptionHelpers
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/Manifests
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/EditProjects
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/Runs
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/Binaries
+Successfully cleaned artifacts at path /Users/mk-am16-009/.cache/tuist/SelectiveTests
+There's nothing to clean for dependencies
+Resolving and fetching plugins.
+Plugins resolved and fetched successfully.
+Loading and constructing the graph
+It might take a while if the cache is empty
+Using cache binaries for the following targets:
+Generating workspace MusicPlayer.xcworkspace
+Generating project MiniPlayer
+Generating project MediaPlayerService
+Generating project MusicPlayer
+Project generated.
+```
+
+|    |   |    |   |
+|----|----|----|----|
+| ![IMG_7414](https://github.com/user-attachments/assets/9bac76cd-b9af-477a-b7f4-63ac97f40dc5) | ![IMG_7415](https://github.com/user-attachments/assets/d90dca9a-4798-4134-9417-5c0972bfba70) | ![image](https://github.com/user-attachments/assets/eaeaa05e-e6b2-4c96-a082-04086a88ee8d) | ![image](https://github.com/user-attachments/assets/a9460131-f571-47e2-b583-3a3359ac0b5a)|
+
 
 
 ## 기능 검증
@@ -89,6 +132,13 @@ ProjectM은 SwiftUI를 기반으로 개발된 iOS 음악 플레이어 애플리�
 
 
 -----------
+
+
+
+
+
+
+
 
 # 초기 설계 히스토리
 
