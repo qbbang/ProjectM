@@ -15,6 +15,7 @@ let plist: [String : Plist.Value] = [
     "UIUserInterfaceStyle": "Light",
     "UIBackgroundModes": ["audio"],
     "NSAppleMusicUsageDescription": "음악 라이브러리에서 콘텐츠를 가져오려면 권한이 필요합니다.",
+    "NSVolumeUsageDescription": "음악 재생을 위해 기기 볼륨을 제어해야 합니다.",
     "CFBundleShortVersionString": "$(MARKETING_VERSION)",
     "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)"
 ]

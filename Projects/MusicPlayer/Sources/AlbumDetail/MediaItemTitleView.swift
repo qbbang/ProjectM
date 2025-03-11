@@ -20,8 +20,6 @@ struct MediaItemTitleView: View {
         
     }
     
-    
-    
     @ViewBuilder
     private var highlightView: some View  {
         if mediaItem.isPlaying {
@@ -53,9 +51,18 @@ struct MediaItemTitleView: View {
     }
 }
 
-//#Preview {
-//    @Namespace var animation
-//    let mediaItem = MediaItem(id: 12, title: "노래 제목", original: .init())
-//
-//    MediaItemTitleView(namespace: animation, mediaItem: mediaItem)
-//}
+#Preview {
+    @Namespace var animation
+    let mediaItem = MediaItem(
+        id: 231,
+        title: "title",
+        artist: "artist",
+        artwork: nil,
+        playbackDuration: 180,
+        isPlaying: true,
+        positionl: 0,
+        original: .init()
+    )
+
+    MediaItemTitleView(namespace: animation, mediaItem: mediaItem)
+}

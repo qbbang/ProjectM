@@ -89,7 +89,7 @@ struct MediaPlayerServiceTests {
     
     @Test
     func playSelectedItem() async throws {
-        let items = await mediaPlayerService.fetchMediaQuery(for: .songs()).map { MediaItem(from: $0) }
+        let items = await mediaPlayerService.fetchMediaQuery(for: .songs()).map { MediaItem(from: $0, position: 0) }
         guard let selectedItem = items.randomElement() else { return }
         
         await mediaPlayerService.play(selectedItem, in: items)
@@ -162,7 +162,7 @@ struct MediaPlayerServiceTests {
     
     private func setPlayList() async {
         let items = await mediaPlayerService.fetchMediaQuery(for: .songs())
-        let modifierItems = items.map { MediaItem(from: $0)}
+        let modifierItems = items.enumerated().map { MediaItem(from: $0.element, position: $0.offset)}
         await mediaPlayerService.replaceQueue(items: modifierItems)
     }
     

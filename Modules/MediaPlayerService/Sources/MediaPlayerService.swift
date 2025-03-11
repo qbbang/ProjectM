@@ -74,10 +74,6 @@ public final actor MediaPlayerService: MediaPlayerServiceable {
         await musicPlayer.setQueue(with: queue)
     }
     
-    public func replaceQueue(collection: MPMediaItemCollection) async {
-        await musicPlayer.setQueue(with: collection)
-    }
-    
     public func playbackState() async -> MPMusicPlaybackState {
         await musicPlayer.playbackState
     }

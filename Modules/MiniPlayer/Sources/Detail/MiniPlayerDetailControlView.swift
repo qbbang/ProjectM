@@ -9,64 +9,93 @@ import SwiftUI
 
 struct MiniPlayerDetailControlView: View {
     @EnvironmentObject var miniPlayerData: MiniPlayerData
+    @StateObject private var controlData = MiniPlayerControlData()
     
     var body: some View {
         VStack(spacing: 16) {
             controlView
             playbackDurationView
+            volumeControlView
+        }
+        .onAppear {
+            controlData.sliderValue = miniPlayerData.nowPlayTime
         }
     }
     
     private var controlView: some View {
         HStack(spacing: 16) {
-            CustomButton(action: {
-                await miniPlayerData.repeatMode()
-            }, imageName: miniPlayerData.repeatMode.image)
-            
-            CustomButton(action: {
-                await miniPlayerData.skipToPreviousItem()
-                await miniPlayerData.sync()
-            }, imageName: "backward.fill")
-            
-            CustomButton(action: {
-                await miniPlayerData.togglePlayback()
-            }, imageName: miniPlayerData.playbackStatus.buttonImage)
-            
-            CustomButton(action: {
-                await miniPlayerData.skipToNextItem()
-                await miniPlayerData.sync()
-            }, imageName: "forward.fill")
-            
-            CustomButton(action: {
-                await miniPlayerData.shufflePlay()
-            }, imageName: "shuffle")
-            
-            #if DEBUG
-            CustomButton(action: {
-                await miniPlayerData.seek(to: 200)
-            }, imageName: "arrow.trianglehead.2.clockwise.rotate.90.circle.fill")
-            #endif
+            CustomButton(
+                action:{ await miniPlayerData.repeatMode() },
+                imageName: miniPlayerData.repeatMode.image
+            )
+            CustomButton(
+                action: { await miniPlayerData.skipToPreviousItem() },
+                imageName: "backward.fill"
+            )
+            CustomButton(
+                action: { await miniPlayerData.togglePlayback() },
+                imageName: miniPlayerData.playbackStatus.buttonImage
+            )
+            CustomButton(
+                action: { await miniPlayerData.skipToNextItem() },
+                imageName: "forward.fill"
+            )
+            CustomButton(
+                action: { await miniPlayerData.shufflePlay() },
+                imageName: "shuffle"
+            )
         }
     }
     
+    @ViewBuilder
     private var playbackDurationView: some View {
+        let total = miniPlayerData.nowPlayingItem?.playbackDuration ?? 0
         VStack {
-            let total = miniPlayerData.nowPlayingItem?.playbackDuration ?? 0
-            // TODO: seek 활용하려면 Slider로 처리해야함.
-            // 노래가 끝나면 타이머도 종료되어야함
-            ProgressView(value: miniPlayerData.nowPlayTime, total: total)
-                .progressViewStyle(LinearProgressViewStyle())
+            Slider(
+                value: Binding(
+                    get: { controlData.isDragging ? controlData.sliderValue : miniPlayerData.nowPlayTime },
+                    set: { controlData.sliderValue = $0 }
+                ),
+                in: 0...max(1, total),
+                step: 1
+            ) { editing in
+                controlData.isDragging = editing
+                if !editing {
+                    Task { await miniPlayerData.seek(to: controlData.sliderValue) }
+                }
+            }
+            .accentColor(.white)
             
             HStack {
-                Text("\(formattedTime(timeInSeconds: miniPlayerData.nowPlayTime))")
+                Text("\(formattedTime(timeInSeconds: controlData.sliderValue))")
                     .font(.caption)
                     .foregroundColor(.white)
                 Spacer()
-                Text("- \(formattedTime(timeInSeconds: miniPlayerData.nowPlayDuration))")
+                Text("- \(formattedTime(timeInSeconds: max(0, total - controlData.sliderValue)))")
                     .font(.caption)
                     .foregroundColor(.white)
             }
         }
+    }
+    
+    private var volumeControlView: some View {
+        HStack {
+            Image(systemName: "speaker.fill").foregroundColor(.white)
+            Slider(
+                value: Binding(
+                    get: { Double(controlData.volume) },
+                    set: { newValue in
+                        controlData.volume = Float(newValue)
+                        controlData.setSystemVolume(volume: Float(newValue))
+                    }
+                ),
+                in: 0...1,
+                step: 0.01
+            )
+            .accentColor(.white)
+            Image(systemName: "speaker.wave.3.fill").foregroundColor(.white)
+        }
+        .padding(.top, 20)
     }
     
     private func formattedTime(timeInSeconds: TimeInterval) -> String {
@@ -77,6 +106,5 @@ struct MiniPlayerDetailControlView: View {
 }
 
 #Preview {
-    MiniPlayerDetailControlView()
-        .environmentObject(MiniPlayerData())
+    MiniPlayerDetailControlView().environmentObject(MiniPlayerData())
 }
