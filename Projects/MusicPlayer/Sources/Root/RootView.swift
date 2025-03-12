@@ -18,12 +18,9 @@ struct RootView: View {
             contentView
         }
         .task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
             let authorization = await miniPlayerData.requestAuthorization()
-            if authorization == .authorized {
-                isAuthorized = true
-            } else {
-                isAuthorized = false
-            }
+            isAuthorized = (authorization == .authorized)
         }
     }
     

@@ -19,7 +19,6 @@ struct AlbumListView: View {
             contentsView
                 .navigationTitle("라이브러리")
                 .navigationBarTitleDisplayMode(.large)
-                .toolbar { microphoneBarItem }
         }
     }
     
@@ -45,17 +44,6 @@ struct AlbumListView: View {
                 .padding(.bottom, miniPlayerData.miniPlayerHeight + 16)
             }
             
-        }
-    }
-    
-    // TODO: 제거하거나 기능을 구현하거나
-    private var microphoneBarItem: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: {
-                print("✅ 녹음 버튼 클릭")
-            }) {
-                Image(systemName: "microphone.fill")
-            }
         }
     }
 }
